@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,8 +7,10 @@ public class Player : MonoBehaviour
 {
     public bool IsWalking { get { return _isWalking; } }
     [SerializeField] private float _moveSpeed, _rotateSpeed;
-    const float PLAYER_RADIUS = 0.7f;
-    const float PLAYER_HEIGHT = 2f;
+    [SerializeField] LayerMask _countersLayerMask;
+    private const float PLAYER_RADIUS = 0.7f;
+    private const float PLAYER_HEIGHT = 2f;
+    private const float INTERACT_DISTANCE = 2f;
     private GameInput _gameInput;
     private bool _isWalking;
     private void Awake()
@@ -16,10 +19,26 @@ public class Player : MonoBehaviour
     }
     private void Update()
     {
+        HandleMovement();
+        HandleInteractions();
+    }
+
+    private void HandleInteractions()
+    {
+        if (Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, INTERACT_DISTANCE, _countersLayerMask))
+        {
+            if (hit.transform.TryGetComponent<ClearCounter>(out ClearCounter clearCounter))
+            {
+                //has clear counter comp
+                clearCounter.Interact();
+            }
+        }
+    }
+
+    private void HandleMovement()
+    {
         Vector2 inputVector = _gameInput.GetInputVectorNormalized();
-
         //set variables
-
         Vector3 moveDir = new Vector3(inputVector.x, 0f, inputVector.y);
         float moveDistance = _moveSpeed * Time.deltaTime;
         //check can move
@@ -29,7 +48,7 @@ public class Player : MonoBehaviour
         {
             //cant move, try only X movement
             Vector3 moveDirX = new Vector3(moveDir.x, 0f, 0f).normalized;
-            canMove = CanMove(moveDirX, moveDistance);
+            canMove = moveDir.x != 0f && CanMove(moveDirX, moveDistance);
             if (canMove)
             {
                 //update vector
@@ -39,7 +58,7 @@ public class Player : MonoBehaviour
             {
                 //if cant move on X, try Z
                 Vector3 moveDirZ = new Vector3(0f, 0f, moveDir.z).normalized;
-                canMove = CanMove(moveDirZ, moveDistance);
+                canMove = canMove = moveDir.z != 0f && CanMove(moveDirZ, moveDistance);
                 if (canMove)
                 {
                     //update direction
@@ -55,8 +74,7 @@ public class Player : MonoBehaviour
         _isWalking = canMove && inputVector != Vector2.zero;
         transform.forward = Vector3.Slerp(transform.forward, moveDir, Time.deltaTime * _rotateSpeed);
     }
-
-    bool CanMove(Vector3 moveDir, float moveDistance)
+    private bool CanMove(Vector3 moveDir, float moveDistance)
     {
         return !Physics.CapsuleCast(transform.position,
                                  transform.position + Vector3.up * PLAYER_HEIGHT,
