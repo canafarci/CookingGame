@@ -4,22 +4,24 @@ using UnityEngine;
 
 public class KitchenObject : MonoBehaviour
 {
-    public KitchenObjectScriptableObject KitchenObjectSO { get { return _kitchenObjectSO; } }
-    public ClearCounter ClearCounter { get { return _clearCounter; } }
     [SerializeField] KitchenObjectScriptableObject _kitchenObjectSO;
-    private ClearCounter _clearCounter;
-    public void SetClearCounter(ClearCounter clearCounter)
+    private IKitchenObjectParent _kitchenObjectParent;
+    public void SetKitchenObjectParent(IKitchenObjectParent kitchenObjectParent)
     {
-        _clearCounter?.ClearKitchenObject();
+        _kitchenObjectParent?.ClearKitchenObject();
 
-        _clearCounter = clearCounter;
+        _kitchenObjectParent = kitchenObjectParent;
 
-        if (clearCounter.HasKitchenObject)
-            Debug.LogError("Counter already has a kitchen object");
+        if (kitchenObjectParent.HasKitchenObject())
+            Debug.LogError("Parent has a kitchen object");
 
-        _clearCounter.KitchenObject = this;
+        _kitchenObjectParent.SetKitchenObject(this);
 
-        transform.parent = clearCounter.TargetTransform;
+        transform.parent = kitchenObjectParent.GetKitchenObjectFollowTransform();
         transform.localPosition = Vector3.zero;
     }
+
+    //Getters and Setters
+    public KitchenObjectScriptableObject GetKitchenObjectSO() => _kitchenObjectSO;
+    public IKitchenObjectParent GetKitchenObjectParent() => _kitchenObjectParent;
 }

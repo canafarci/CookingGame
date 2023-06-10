@@ -22,7 +22,7 @@ public class SelectedCounterVisual : MonoBehaviour
         Player.Instance.OnSelectedCounterChanged -= SelectedCounterChangedHandler;
     }
 
-    private void SelectedCounterChangedHandler(object sender, Player.OnSelectedCounterChangedEventArgs eventArgs)
+    private void SelectedCounterChangedHandler(object sender, OnSelectedCounterChangedEventArgs eventArgs)
     {
         if (!_selectedVisualActive && eventArgs.SelectedCounter == _counter)
         {
