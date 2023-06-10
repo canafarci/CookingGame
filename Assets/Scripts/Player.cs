@@ -5,22 +5,41 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    //Getter-Setters
     public bool IsWalking { get { return _isWalking; } }
+    //Private
     [SerializeField] private float _moveSpeed, _rotateSpeed;
     [SerializeField] LayerMask _countersLayerMask;
+    private ClearCounter _selectedCounter;
+    private GameInput _gameInput;
+    private bool _isWalking;
+    //Constants
     private const float PLAYER_RADIUS = 0.7f;
     private const float PLAYER_HEIGHT = 2f;
     private const float INTERACT_DISTANCE = 2f;
-    private GameInput _gameInput;
-    private bool _isWalking;
+    //EVENTS
+    public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
+    public class OnSelectedCounterChangedEventArgs : EventArgs
+    {
+        public ClearCounter SelectedCounter;
+    }
     private void Awake()
     {
         _gameInput = FindObjectOfType<GameInput>();
+    }
+
+    private void OnEnable()
+    {
+        _gameInput.OnInteractAction += InteractHandler;
     }
     private void Update()
     {
         HandleMovement();
         HandleInteractions();
+    }
+    private void InteractHandler(object sender, EventArgs e)
+    {
+        _selectedCounter?.Interact();
     }
 
     private void HandleInteractions()
@@ -29,10 +48,14 @@ public class Player : MonoBehaviour
         {
             if (hit.transform.TryGetComponent<ClearCounter>(out ClearCounter clearCounter))
             {
-                //has clear counter comp
-                clearCounter.Interact();
+                if (clearCounter != _selectedCounter)
+                    SelectedCounterChanged(clearCounter);
             }
+            else
+                SetSelectedCounterNull();
         }
+        else
+            SetSelectedCounterNull();
     }
 
     private void HandleMovement()
@@ -81,5 +104,17 @@ public class Player : MonoBehaviour
                                 PLAYER_RADIUS,
                                 moveDir,
                                 moveDistance);
+    }
+    private void SetSelectedCounterNull()
+    {
+        if (_selectedCounter == null) return;
+        _selectedCounter = null;
+        SelectedCounterChanged(_selectedCounter);
+    }
+
+    private void SelectedCounterChanged(ClearCounter counter)
+    {
+        _selectedCounter = counter;
+        OnSelectedCounterChanged?.Invoke(this, new OnSelectedCounterChangedEventArgs { SelectedCounter = _selectedCounter });
     }
 }
