@@ -5,8 +5,6 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    //Getter-Setters
-    public bool IsWalking { get { return _isWalking; } }
     //Private
     [SerializeField] private float _moveSpeed, _rotateSpeed;
     [SerializeField] LayerMask _countersLayerMask;
@@ -17,6 +15,10 @@ public class Player : MonoBehaviour
     private const float PLAYER_RADIUS = 0.7f;
     private const float PLAYER_HEIGHT = 2f;
     private const float INTERACT_DISTANCE = 2f;
+    //Properties
+    public bool IsWalking { get { return _isWalking; } }
+    //Singleton
+    public static Player Instance { get; private set; }
     //EVENTS
     public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
     public class OnSelectedCounterChangedEventArgs : EventArgs
@@ -25,6 +27,17 @@ public class Player : MonoBehaviour
     }
     private void Awake()
     {
+        //Initialize singleton
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Debug.LogError("Player instance is not null!");
+            Destroy(gameObject);
+        }
+
         _gameInput = FindObjectOfType<GameInput>();
     }
 
