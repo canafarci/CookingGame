@@ -5,13 +5,13 @@ using UnityEngine;
 
 public class SelectedCounterVisual : MonoBehaviour
 {
-    [SerializeField] private Renderer _counterRenderer;
+    [SerializeField] private Renderer[] _counterRenderers;
     [SerializeField] private Material _activeMaterial, _inactiveMaterial;
-    private ClearCounter _counter;
+    private BaseCounter _counter;
     private bool _selectedVisualActive = false;
     private void Awake()
     {
-        _counter = GetComponent<ClearCounter>();
+        _counter = GetComponent<BaseCounter>();
     }
     private void Start()
     {
@@ -26,12 +26,16 @@ public class SelectedCounterVisual : MonoBehaviour
     {
         if (!_selectedVisualActive && eventArgs.SelectedCounter == _counter)
         {
-            _counterRenderer.material = _activeMaterial;
+            foreach (Renderer rnd in _counterRenderers)
+                rnd.material = _activeMaterial;
+
             _selectedVisualActive = true;
         }
         else if (_selectedVisualActive && eventArgs.SelectedCounter != _counter)
         {
-            _counterRenderer.material = _inactiveMaterial;
+            foreach (Renderer rnd in _counterRenderers)
+                rnd.material = _inactiveMaterial;
+
             _selectedVisualActive = false;
         }
     }
