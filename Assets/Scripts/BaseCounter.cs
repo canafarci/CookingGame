@@ -13,5 +13,6 @@ public class BaseCounter : MonoBehaviour, IKitchenObjectParent
     public void SetKitchenObject(KitchenObject kitchenObject) => _kitchenObject = kitchenObject;
     public bool HasKitchenObject() => _kitchenObject != null;
     public Transform GetKitchenObjectFollowTransform() => _counterTopPoint;
-    public virtual void Interact(Player player) { }
+    public virtual void Interact(Player player) { Debug.LogError("Interact called from base class"); }
+    public virtual void InteractAlternate(Player player) { Debug.LogError("Interact alternate called from base class"); }
 }
