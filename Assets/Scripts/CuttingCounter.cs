@@ -5,7 +5,8 @@ using UnityEngine;
 public class CuttingCounter : BaseCounter
 {
     [SerializeField] CuttingRecipeScriptableObject[] _cuttingRecipeSOs;
-    private static Dictionary<KitchenObjectScriptableObject, KitchenObjectScriptableObject> _kitchenObjectRecipeDict;
+    private static Dictionary<KitchenObjectScriptableObject, CuttingRecipeScriptableObject> _kitchenObjectRecipeDict;
+    private int _cuttingProgress;
 
     private void Awake()
     {
@@ -20,6 +21,7 @@ public class CuttingCounter : BaseCounter
             {
                 //player has a KO and table is empty
                 player.GetKitchenObject().SetKitchenObjectParent(this);
+                _cuttingProgress = 0;
             }
             else
             {
@@ -42,13 +44,18 @@ public class CuttingCounter : BaseCounter
 
     public override void InteractAlternate(Player player)
     {
-        if (HasKitchenObject())
+        //only cut if item can be cut
+        if (HasKitchenObject() && _kitchenObjectRecipeDict.ContainsKey(GetKitchenObject().GetKitchenObjectSO()))
         {
-            KitchenObjectScriptableObject outputKitchenObjectSO = _kitchenObjectRecipeDict[GetKitchenObject().GetKitchenObjectSO()];
-            //only cut if item can be cut
-            if (outputKitchenObjectSO != null)
+            CuttingRecipeScriptableObject cuttingRecipe = _kitchenObjectRecipeDict[GetKitchenObject().GetKitchenObjectSO()];
+            int progressMax = cuttingRecipe.CuttingProgressMax;
+            //increase counter
+            _cuttingProgress++;
+            if (_cuttingProgress >= progressMax)
             {
+                //spawn new object
                 GetKitchenObject().DestroySelf();
+                KitchenObjectScriptableObject outputKitchenObjectSO = cuttingRecipe.Output;
                 KitchenObject.SpawnKitchenObject(outputKitchenObjectSO, this);
             }
         }
@@ -57,10 +64,10 @@ public class CuttingCounter : BaseCounter
     {
         if (_kitchenObjectRecipeDict == null)
         {
-            _kitchenObjectRecipeDict = new Dictionary<KitchenObjectScriptableObject, KitchenObjectScriptableObject>();
+            _kitchenObjectRecipeDict = new Dictionary<KitchenObjectScriptableObject, CuttingRecipeScriptableObject>();
 
             foreach (CuttingRecipeScriptableObject crso in _cuttingRecipeSOs)
-                _kitchenObjectRecipeDict[crso.Input] = crso.Output;
+                _kitchenObjectRecipeDict[crso.Input] = crso;
         }
     }
 }
