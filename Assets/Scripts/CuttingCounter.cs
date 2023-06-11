@@ -4,7 +4,14 @@ using UnityEngine;
 
 public class CuttingCounter : BaseCounter
 {
-    [SerializeField] KitchenObjectScriptableObject _cutObjectSO;
+    [SerializeField] CuttingRecipeScriptableObject[] _cuttingRecipeSOs;
+    private static Dictionary<KitchenObjectScriptableObject, KitchenObjectScriptableObject> _kitchenObjectRecipeDict;
+
+    private void Awake()
+    {
+        //if dict is not initialized, set key value pairs
+        InitializeKitchenObjectRecipeDict();
+    }
     public override void Interact(Player player)
     {
         if (!HasKitchenObject()) //table is empty
@@ -37,9 +44,23 @@ public class CuttingCounter : BaseCounter
     {
         if (HasKitchenObject())
         {
-            GetKitchenObject().DestroySelf();
+            KitchenObjectScriptableObject outputKitchenObjectSO = _kitchenObjectRecipeDict[GetKitchenObject().GetKitchenObjectSO()];
+            //only cut if item can be cut
+            if (outputKitchenObjectSO != null)
+            {
+                GetKitchenObject().DestroySelf();
+                KitchenObject.SpawnKitchenObject(outputKitchenObjectSO, this);
+            }
+        }
+    }
+    private void InitializeKitchenObjectRecipeDict()
+    {
+        if (_kitchenObjectRecipeDict == null)
+        {
+            _kitchenObjectRecipeDict = new Dictionary<KitchenObjectScriptableObject, KitchenObjectScriptableObject>();
 
-            KitchenObject.SpawnKitchenObject(_cutObjectSO, this);
+            foreach (CuttingRecipeScriptableObject crso in _cuttingRecipeSOs)
+                _kitchenObjectRecipeDict[crso.Input] = crso.Output;
         }
     }
 }
