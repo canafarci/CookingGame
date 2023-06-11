@@ -11,10 +11,17 @@ public class ContainerCounter : BaseCounter
     public event EventHandler OnPlayerGrabbedObject;
     public override void Interact(Player player)
     {
-        Transform kitchenObjectTransform = Instantiate<Transform>(_kitchenObjectSO.Prefab);
-        kitchenObjectTransform.GetComponent<KitchenObject>().SetKitchenObjectParent(player);
+        if (player.HasKitchenObject())
+        {
+            // player has a KO
+        }
+        else
+        {
+            Transform kitchenObjectTransform = Instantiate<Transform>(_kitchenObjectSO.Prefab);
+            kitchenObjectTransform.GetComponent<KitchenObject>().SetKitchenObjectParent(player);
 
-        //fire event
-        OnPlayerGrabbedObject?.Invoke(this, EventArgs.Empty);
+            //fire event
+            OnPlayerGrabbedObject?.Invoke(this, EventArgs.Empty);
+        }
     }
 }

@@ -9,7 +9,6 @@ public class KitchenObject : MonoBehaviour
     public void SetKitchenObjectParent(IKitchenObjectParent kitchenObjectParent)
     {
         _kitchenObjectParent?.ClearKitchenObject();
-
         _kitchenObjectParent = kitchenObjectParent;
 
         if (kitchenObjectParent.HasKitchenObject())

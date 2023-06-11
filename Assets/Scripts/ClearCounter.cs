@@ -9,12 +9,29 @@ public class ClearCounter : BaseCounter
     [SerializeField] KitchenObjectScriptableObject _kitchenObjectSO;
     public override void Interact(Player player)
     {
-        if (!HasKitchenObject())
+        if (!HasKitchenObject()) //table is empty
         {
-
+            if (player.HasKitchenObject())
+            {
+                //player has a KO and table is empty
+                player.GetKitchenObject().SetKitchenObjectParent(this);
+            }
+            else
+            {
+                //player hasn't got anything
+            }
         }
-        else
+        else //there is a KO on table
         {
+            if (player.HasKitchenObject())
+            {
+                //player has a KO
+            }
+            else
+            {
+                //player hasn't got anything
+                GetKitchenObject().SetKitchenObjectParent(player);
+            }
         }
     }
 }
