@@ -4,15 +4,26 @@ using UnityEngine;
 
 public class LookAtCamera : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    private enum Mode { LookAt, LookAtInverted, CameraForward, CameraForwardInverted }
+    [SerializeField] private Mode _mode;
+    void LateUpdate()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        switch (_mode)
+        {
+            case (Mode.LookAt):
+                transform.LookAt(Camera.main.transform.position);
+                break;
+            case (Mode.LookAtInverted):
+                transform.LookAt(transform.position - Camera.main.transform.position);
+                break;
+            case (Mode.CameraForward):
+                transform.forward = Camera.main.transform.forward;
+                break;
+            case (Mode.CameraForwardInverted):
+                transform.forward = -Camera.main.transform.forward;
+                break;
+            default:
+                break;
+        }
     }
 }
