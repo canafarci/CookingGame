@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,7 +8,8 @@ public class CuttingCounter : BaseCounter
     [SerializeField] CuttingRecipeScriptableObject[] _cuttingRecipeSOs;
     private static Dictionary<KitchenObjectScriptableObject, CuttingRecipeScriptableObject> _kitchenObjectRecipeDict;
     private int _cuttingProgress;
-
+    //events
+    public event EventHandler<OnCuttingProgressEventArgs> OnCuttingProgress;
     private void Awake()
     {
         //if dict is not initialized, set key value pairs
@@ -22,6 +24,7 @@ public class CuttingCounter : BaseCounter
                 //player has a KO and table is empty
                 player.GetKitchenObject().SetKitchenObjectParent(this);
                 _cuttingProgress = 0;
+                FireOnCuttingProgressEvent(0f);
             }
             else
             {
@@ -51,6 +54,7 @@ public class CuttingCounter : BaseCounter
             int progressMax = cuttingRecipe.CuttingProgressMax;
             //increase counter
             _cuttingProgress++;
+            FireOnCuttingProgressEvent((float)_cuttingProgress / progressMax);
             if (_cuttingProgress >= progressMax)
             {
                 //spawn new object
@@ -60,6 +64,15 @@ public class CuttingCounter : BaseCounter
             }
         }
     }
+
+    private void FireOnCuttingProgressEvent(float normalizedProgress)
+    {
+        OnCuttingProgress?.Invoke(this, new OnCuttingProgressEventArgs
+        {
+            ProgressNormalized = normalizedProgress
+        });
+    }
+
     private void InitializeKitchenObjectRecipeDict()
     {
         if (_kitchenObjectRecipeDict == null)
@@ -70,4 +83,8 @@ public class CuttingCounter : BaseCounter
                 _kitchenObjectRecipeDict[crso.Input] = crso;
         }
     }
+}
+public class OnCuttingProgressEventArgs : EventArgs
+{
+    public float ProgressNormalized;
 }
