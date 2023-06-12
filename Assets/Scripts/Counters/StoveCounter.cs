@@ -1,0 +1,121 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class StoveCounter : BaseCounter, IHasProgress
+{
+    public enum State { Idle, Frying, Burned }
+    [SerializeField] private FryingRecipeScriptableObject[] _fryingRecipeSOs;
+    private State _state;
+    float _fryingTimer = 0f;
+    private static Dictionary<KitchenObjectScriptableObject, FryingRecipeScriptableObject> _fryingRecipeDict;
+    public event EventHandler<OnStoveStateChangedEventArgs> OnStoveStateChanged;
+    public event EventHandler<OnCuttingProgressEventArgs> OnCuttingProgress;
+
+    private void Awake()
+    {
+        InitializeFryingRecipeDict();
+    }
+    private void Start()
+    {
+        _state = State.Idle;
+    }
+    private void Update()
+    {
+        if (HasKitchenObject() && _fryingRecipeDict.ContainsKey(GetKitchenObject().GetKitchenObjectSO()))
+        {
+            FryingRecipeScriptableObject fryingRecipe = _fryingRecipeDict[GetKitchenObject().GetKitchenObjectSO()];
+            switch (_state)
+            {
+                case (State.Idle):
+                    //break out of the state machine if state is idle
+                    break;
+                case (State.Frying):
+                    _fryingTimer += Time.deltaTime;
+                    //fire event
+                    FireOnCuttingProgressEvent(_fryingTimer / fryingRecipe.FryingTimerMax);
+
+                    if (_fryingTimer >= fryingRecipe.FryingTimerMax)
+                    {
+                        GetKitchenObject().DestroySelf();
+                        KitchenObject.SpawnKitchenObject(fryingRecipe.Output, this);
+                        _fryingTimer = 0f;
+                        if (fryingRecipe.OutputIsBurnedObject)
+                        {
+                            _state = State.Burned;
+                            OnStoveStateChanged?.Invoke(this, new OnStoveStateChangedEventArgs { State = _state });
+                            FireOnCuttingProgressEvent(0f);
+                        }
+                    }
+                    break;
+                case (State.Burned):
+                    //TODO
+                    break;
+            }
+        }
+    }
+    public override void Interact(Player player)
+    {
+        if (!HasKitchenObject()) //table is empty
+        {
+            if (player.HasKitchenObject())
+            {
+                //player has a KO and table is empty, transfer player item to the table
+                player.GetKitchenObject().SetKitchenObjectParent(this);
+                //if KO can be fried, change state to frying and reset timer
+                if (_fryingRecipeDict.ContainsKey(GetKitchenObject().GetKitchenObjectSO()))
+                {
+                    _state = State.Frying;
+                    _fryingTimer = 0f;
+                    OnStoveStateChanged?.Invoke(this, new OnStoveStateChangedEventArgs { State = _state });
+                }
+            }
+            else
+            {
+                //player hasn't got anything
+            }
+        }
+        else //there is a KO on table
+        {
+            if (player.HasKitchenObject())
+            {
+                //player has a KO
+            }
+            else
+            {
+                //player hasn't got anything
+                GetKitchenObject().SetKitchenObjectParent(player);
+                //reset state
+                _state = State.Idle;
+                OnStoveStateChanged?.Invoke(this, new OnStoveStateChangedEventArgs { State = _state });
+                _fryingTimer = 0f;
+                FireOnCuttingProgressEvent(0f);
+            }
+        }
+    }
+    private void InitializeFryingRecipeDict()
+    {
+        if (_fryingRecipeDict == null)
+        {
+            //only initialize if has not been initialized yet
+            _fryingRecipeDict = new Dictionary<KitchenObjectScriptableObject, FryingRecipeScriptableObject>();
+            foreach (FryingRecipeScriptableObject frso in _fryingRecipeSOs)
+            {
+                _fryingRecipeDict[frso.Input] = frso;
+            }
+        }
+    }
+    private void FireOnCuttingProgressEvent(float normalizedProgress)
+    {
+        OnCuttingProgress?.Invoke(this, new OnCuttingProgressEventArgs
+        {
+            ProgressNormalized = normalizedProgress
+        });
+    }
+}
+
+public class OnStoveStateChangedEventArgs : EventArgs
+{
+    public StoveCounter.State State;
+}

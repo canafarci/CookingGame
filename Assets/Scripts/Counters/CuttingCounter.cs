@@ -3,13 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CuttingCounter : BaseCounter
+public class CuttingCounter : BaseCounter, IHasProgress
 {
     [SerializeField] CuttingRecipeScriptableObject[] _cuttingRecipeSOs;
     private static Dictionary<KitchenObjectScriptableObject, CuttingRecipeScriptableObject> _kitchenObjectRecipeDict;
     private int _cuttingProgress;
-    //events
     public event EventHandler<OnCuttingProgressEventArgs> OnCuttingProgress;
+
+    //events
     private void Awake()
     {
         //if dict is not initialized, set key value pairs

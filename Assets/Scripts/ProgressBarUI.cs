@@ -7,14 +7,14 @@ using UnityEngine.UI;
 public class ProgressBarUI : MonoBehaviour
 {
     [SerializeField] Image _progressBarImage;
-    CuttingCounter _cuttingCounter;
+    IHasProgress _progressCounter;
     private void Awake()
     {
-        _cuttingCounter = GetComponentInParent<CuttingCounter>();
+        _progressCounter = GetComponentInParent<IHasProgress>();
     }
     private void Start()
     {
-        _cuttingCounter.OnCuttingProgress += CuttingProgressHandler;
+        _progressCounter.OnCuttingProgress += CuttingProgressHandler;
         _progressBarImage.fillAmount = 0f;
         Hide();
     }
