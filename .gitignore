@@ -8,7 +8,7 @@
 /Library
 /obj
 /Temp
-
+/ProjectSettings
 
 *.txt
 *.csproj
