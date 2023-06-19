@@ -20,11 +20,11 @@ public class PlateCompleteVisual : MonoBehaviour
         }
     }
 
-    private void IngredientAddedHandler(object sender, OnIngredientAddedEventArgs eventArgs)
+    private void IngredientAddedHandler(object sender, OnIngredientChangedEventArgs eventArgs)
     {
         foreach (KitchenObjectSOSceneObjectLink link in _kitchenObjectSOSceneObjectLinks)
         {
-            if (link.KitchenObjectSO == eventArgs.AddedKitchenObjectSO)
+            if (link.KitchenObjectSO == eventArgs.ChangedKitchenObjectSO)
             {
                 link.SceneObject.SetActive(true);
             }
