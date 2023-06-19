@@ -78,22 +78,30 @@ public class StoveCounter : BaseCounter, IHasProgress
         }
         else //there is a KO on table
         {
+            //player has a KO
             if (player.HasKitchenObject())
             {
-                //player has a KO
+                //KO is a plate
+                if (player.GetKitchenObject().TryGetPlate(out PlateKitchenObject plateKitchenObject))
+                {
+                    if (plateKitchenObject.TryAddIngredient(GetKitchenObject().GetKitchenObjectSO()))
+                    {
+                        GetKitchenObject().DestroySelf();
+                        ResetStateToIdle();
+                    }
+                }
             }
             else
             {
                 //player hasn't got anything
                 GetKitchenObject().SetKitchenObjectParent(player);
-                //reset state
-                _state = State.Idle;
-                OnStoveStateChanged?.Invoke(this, new OnStoveStateChangedEventArgs { State = _state });
-                _fryingTimer = 0f;
-                FireOnCuttingProgressEvent(0f);
+                ResetStateToIdle();
             }
         }
     }
+
+
+
     private void InitializeFryingRecipeDict()
     {
         if (_fryingRecipeDict == null)
@@ -112,6 +120,14 @@ public class StoveCounter : BaseCounter, IHasProgress
         {
             ProgressNormalized = normalizedProgress
         });
+    }
+    private void ResetStateToIdle()
+    {
+        //reset state to idle
+        _state = State.Idle;
+        _fryingTimer = 0f;
+        OnStoveStateChanged?.Invoke(this, new OnStoveStateChangedEventArgs { State = _state });
+        FireOnCuttingProgressEvent(0f);
     }
 }
 

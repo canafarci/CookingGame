@@ -23,9 +23,29 @@ public class ClearCounter : BaseCounter
         }
         else //there is a KO on table
         {
+            //player has a KO
             if (player.HasKitchenObject())
             {
-                //player has a KO
+                //KO is a plate
+                if (player.GetKitchenObject().TryGetPlate(out PlateKitchenObject plateKitchenObject))
+                {
+                    if (plateKitchenObject.TryAddIngredient(GetKitchenObject().GetKitchenObjectSO()))
+                    {
+                        GetKitchenObject().DestroySelf();
+                    }
+                }
+                //player is carrying a KO other than plate
+                else
+                {
+                    //KO on the table is a plate
+                    if (GetKitchenObject().TryGetPlate(out plateKitchenObject))
+                    {
+                        if (plateKitchenObject.TryAddIngredient(player.GetKitchenObject().GetKitchenObjectSO()))
+                        {
+                            player.GetKitchenObject().DestroySelf();
+                        }
+                    }
+                }
             }
             else
             {
