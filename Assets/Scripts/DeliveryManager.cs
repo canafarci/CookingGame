@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,6 +13,8 @@ public class DeliveryManager : MonoBehaviour
     private const int WAITING_RECIPES_MAX = 5;
     //Singleton reference
     public static DeliveryManager Instance { get; private set; }
+    //Events
+    public event EventHandler<OnWaitingRecipeSOListChangedEventArgs> OnWaitingRecipeSOListChanged;
     private void Awake()
     {
         //initialize singleton
@@ -32,43 +35,49 @@ public class DeliveryManager : MonoBehaviour
     }
     public void DeliverRecipe(PlateKitchenObject plateKitchenObject)
     {
-        List<KitchenObjectScriptableObject> plateKitchenObjectList = plateKitchenObject.GetCurrentKitchenObjectSOList();
+        List<KitchenObjectScriptableObject> plateKitchenObjectSOList = plateKitchenObject.GetCurrentKitchenObjectSOList();
 
         foreach (RecipeScriptableObject recipeSO in _waitingRecipeSOList)
         {
             //if the lists have the same length, continue checking
-            if (recipeSO.KitchenObjectSOList.Count == plateKitchenObjectList.Count)
+            if (recipeSO.KitchenObjectSOList.Count == plateKitchenObjectSOList.Count)
             {
                 bool allItemsMatch = true;
                 foreach (KitchenObjectScriptableObject koso in recipeSO.KitchenObjectSOList)
                 {
-                    if (!plateKitchenObjectList.Contains(koso))
+                    if (!plateKitchenObjectSOList.Contains(koso))
                     {
                         //if list doesnt include any of the KO's in the recipe, break out of the loop and set the bool to false
                         allItemsMatch = false;
                         break;
                     }
                 }
-
                 //found the recipe!
                 if (allItemsMatch)
                 {
-                    print("INGREDIENTS MATCH!");
                     _waitingRecipeSOList.Remove(recipeSO);
+                    OnWaitingRecipeSOListChanged?.Invoke(this, new OnWaitingRecipeSOListChangedEventArgs { Added = false, ChangedRecipe = recipeSO });
                     return;
                 }
             }
         }
         //if execution reaches this part, plate doesnt match any of the recipes
-        print("NOT FOUND THE RECIPE!");
+        Debug.LogWarning("NOT FOUND THE RECIPE!");
     }
     private void SpawnRecipe()
     {
         if (_waitingRecipeSOList.Count < WAITING_RECIPES_MAX)
         {
-            RecipeScriptableObject recipeSO = _recipeListSO.RecipeSOList[Random.Range(0, _recipeListSO.RecipeSOList.Count)];
+            RecipeScriptableObject recipeSO = _recipeListSO.RecipeSOList[UnityEngine.Random.Range(0, _recipeListSO.RecipeSOList.Count)];
             _waitingRecipeSOList.Add(recipeSO);
-            print(recipeSO.RecipeName);
+            OnWaitingRecipeSOListChanged?.Invoke(this, new OnWaitingRecipeSOListChangedEventArgs { Added = true, ChangedRecipe = recipeSO });
         }
     }
+    //Getters-Setters
+    //public List<RecipeScriptableObject> GetWaitingRecipeSOList() => _waitingRecipeSOList;
+}
+public class OnWaitingRecipeSOListChangedEventArgs : EventArgs
+{
+    public RecipeScriptableObject ChangedRecipe;
+    public bool Added;
 }
