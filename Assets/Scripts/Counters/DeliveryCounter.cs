@@ -9,6 +9,7 @@ public class DeliveryCounter : BaseCounter
         //if player has a KO and that KO is a plate
         if (player.HasKitchenObject() && player.GetKitchenObject().TryGetPlate(out PlateKitchenObject plateKitchenObject))
         {
+            DeliveryManager.Instance.DeliverRecipe(plateKitchenObject);
             player.GetKitchenObject().DestroySelf();
         }
     }
