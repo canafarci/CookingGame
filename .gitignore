@@ -2,6 +2,7 @@
 /.vscode
 /Assets/*
 !/Assets/Scripts
+!/Assets/Shaders/
 /Logs
 /Packages
 /UserSettings
