@@ -10,7 +10,6 @@ public class Player : MonoBehaviour, IKitchenObjectParent
     [SerializeField] Transform _kitchenObjectHoldPoint;
     [SerializeField] LayerMask _countersLayerMask;
     private BaseCounter _selectedCounter;
-    private GameInput _gameInput;
     private bool _isWalking;
     private KitchenObject _kitchenObject;
 
@@ -37,14 +36,12 @@ public class Player : MonoBehaviour, IKitchenObjectParent
             Debug.LogError("Player instance is not null!");
             Destroy(gameObject);
         }
-
-        _gameInput = FindObjectOfType<GameInput>();
     }
 
-    private void OnEnable()
+    private void Start()
     {
-        _gameInput.OnInteractAction += InteractHandler;
-        _gameInput.OnInteractAlternateAction += InteractAlternateHandler;
+        GameInput.Instance.OnInteractAction += InteractHandler;
+        GameInput.Instance.OnInteractAlternateAction += InteractAlternateHandler;
     }
     private void Update()
     {
@@ -84,7 +81,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent
     }
     private void HandleMovement()
     {
-        Vector2 inputVector = _gameInput.GetInputVectorNormalized();
+        Vector2 inputVector = GameInput.Instance.GetInputVectorNormalized();
         //set variables
         Vector3 moveDir = new Vector3(inputVector.x, 0f, inputVector.y);
         float moveDistance = _moveSpeed * Time.deltaTime;

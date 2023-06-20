@@ -70,4 +70,13 @@ public class SoundManager : MonoBehaviour
     {
         PlaySound(_audioReferencesSO.Footstep, position);
     }
+    //cleanup
+    private void OnDestroy()
+    {
+        DeliveryManager.Instance.OnPlateDelivered -= PlateDeliveredHandler;
+        CuttingCounter.OnAnyCut -= AnyCutHandler;
+        Player.Instance.OnPickedUpObject -= PickedUpObjectHandler;
+        BaseCounter.OnAnyObjectPlaced -= AnyObjectPlacedHandler;
+        TrashCounter.OnAnyObjectTrashed -= AnyObjectTrashedHandler;
+    }
 }

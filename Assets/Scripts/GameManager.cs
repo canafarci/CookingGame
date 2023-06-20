@@ -12,9 +12,11 @@ public class GameManager : MonoBehaviour
         WaitingToStart,
         CountdownToStart,
         GamePlaying,
-        GameOver
+        GameOver,
+        GamePaused
     }
     private GameState _state;
+    private GameState _stateBeforePaused;
     private float _waitingToStartTimer = 1f;
     private float _countdownToStartTimer = 3f;
     private float _gamePlayingTimer;
@@ -31,6 +33,29 @@ public class GameManager : MonoBehaviour
             Instance = this;
 
         _gamePlayingTimer = GAMEPLAYING_TIMER_MAX;
+    }
+
+    private void Start()
+    {
+        GameInput.Instance.OnPauseAction += PauseActionHandler;
+    }
+
+    private void PauseActionHandler(object sender, EventArgs e) => TogglePauseGame();
+    public void TogglePauseGame()
+    {
+        if (_state != GameState.GamePaused)
+        {
+            _stateBeforePaused = _state;
+            _state = GameState.GamePaused;
+            Time.timeScale = 0f;
+        }
+        else
+        {
+            _state = _stateBeforePaused;
+            Time.timeScale = 1f;
+        }
+
+        OnGameStateChanged?.Invoke(this, new OnGameStateChangedEventArgs { State = _state });
     }
     private void Update()
     {
@@ -62,7 +87,8 @@ public class GameManager : MonoBehaviour
                     OnGameStateChanged?.Invoke(this, new OnGameStateChangedEventArgs { State = _state });
                 }
                 break;
-
+            case GameState.GamePaused:
+                break;
             default:
                 break;
         }
