@@ -8,7 +8,9 @@ public class CuttingCounter : BaseCounter, IHasProgress
     [SerializeField] CuttingRecipeScriptableObject[] _cuttingRecipeSOs;
     private static Dictionary<KitchenObjectScriptableObject, CuttingRecipeScriptableObject> _kitchenObjectRecipeDict;
     private int _cuttingProgress;
+    //events
     public event EventHandler<OnCuttingProgressEventArgs> OnCuttingProgress;
+    public static event EventHandler OnAnyCut;
 
     //events
     private void Awake()
@@ -63,7 +65,9 @@ public class CuttingCounter : BaseCounter, IHasProgress
             int progressMax = cuttingRecipe.CuttingProgressMax;
             //increase counter
             _cuttingProgress++;
+            //fire events
             FireOnCuttingProgressEvent((float)_cuttingProgress / progressMax);
+            OnAnyCut?.Invoke(this, EventArgs.Empty);
             if (_cuttingProgress >= progressMax)
             {
                 //spawn new object

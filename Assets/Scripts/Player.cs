@@ -24,6 +24,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent
     public static Player Instance { get; private set; }
     //EVENTS
     public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
+    public event Action OnPickedUpObject;
     private void Awake()
     {
         //Initialize singleton
@@ -128,7 +129,13 @@ public class Player : MonoBehaviour, IKitchenObjectParent
     //Kitchen object parent interface contract
     public void ClearKitchenObject() => _kitchenObject = null;
     public KitchenObject GetKitchenObject() => _kitchenObject;
-    public void SetKitchenObject(KitchenObject kitchenObject) => _kitchenObject = kitchenObject;
+    public void SetKitchenObject(KitchenObject kitchenObject)
+    {
+        _kitchenObject = kitchenObject;
+
+        if (kitchenObject != null)
+            OnPickedUpObject?.Invoke();
+    }
     public bool HasKitchenObject() => _kitchenObject != null;
     public Transform GetKitchenObjectFollowTransform() => _kitchenObjectHoldPoint;
 }

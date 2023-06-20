@@ -15,13 +15,14 @@ public class DeliveryManager : MonoBehaviour
     public static DeliveryManager Instance { get; private set; }
     //Events
     public event EventHandler<OnWaitingRecipeSOListChangedEventArgs> OnWaitingRecipeSOListChanged;
+    public event EventHandler<OnPlateDeliveredEventArgs> OnPlateDelivered;
     private void Awake()
     {
         //initialize singleton
         if (Instance)
             Destroy(gameObject);
-
-        Instance = this;
+        else
+            Instance = this;
     }
     private void Update()
     {
@@ -57,11 +58,13 @@ public class DeliveryManager : MonoBehaviour
                 {
                     _waitingRecipeSOList.Remove(recipeSO);
                     OnWaitingRecipeSOListChanged?.Invoke(this, new OnWaitingRecipeSOListChangedEventArgs { Added = false, ChangedRecipe = recipeSO });
+                    OnPlateDelivered?.Invoke(this, new OnPlateDeliveredEventArgs { Successful = true });
                     return;
                 }
             }
         }
         //if execution reaches this part, plate doesnt match any of the recipes
+        OnPlateDelivered?.Invoke(this, new OnPlateDeliveredEventArgs { Successful = false });
         Debug.LogWarning("NOT FOUND THE RECIPE!");
     }
     private void SpawnRecipe()
@@ -80,4 +83,8 @@ public class OnWaitingRecipeSOListChangedEventArgs : EventArgs
 {
     public RecipeScriptableObject ChangedRecipe;
     public bool Added;
+}
+public class OnPlateDeliveredEventArgs : EventArgs
+{
+    public bool Successful;
 }
