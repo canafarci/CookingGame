@@ -17,7 +17,8 @@ public class GameManager : MonoBehaviour
     private GameState _state;
     private float _waitingToStartTimer = 1f;
     private float _countdownToStartTimer = 3f;
-    private float _gamePlayingTimer = 10f;
+    private float _gamePlayingTimer;
+    private const float GAMEPLAYING_TIMER_MAX = 30f;
     //events
     public event EventHandler<OnGameStateChangedEventArgs> OnGameStateChanged;
     private void Awake()
@@ -28,6 +29,8 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
         else
             Instance = this;
+
+        _gamePlayingTimer = GAMEPLAYING_TIMER_MAX;
     }
     private void Update()
     {
@@ -72,6 +75,10 @@ public class GameManager : MonoBehaviour
     public float GetCountdownToStartTimer()
     {
         return _countdownToStartTimer;
+    }
+    public float GetGameCountdownTimerNormalized()
+    {
+        return _gamePlayingTimer / GAMEPLAYING_TIMER_MAX;
     }
 }
 public class OnGameStateChangedEventArgs : EventArgs
