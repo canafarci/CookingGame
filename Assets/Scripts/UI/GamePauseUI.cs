@@ -8,6 +8,8 @@ public class GamePauseUI : MonoBehaviour
 {
     [SerializeField] private Button _mainMenuButton;
     [SerializeField] private Button _resumeButton;
+    [SerializeField] private Button _optionsButton;
+    [SerializeField] private GameObject _optionsMenu;
     private void Awake()
     {
         _mainMenuButton.onClick.AddListener(() =>
@@ -18,6 +20,11 @@ public class GamePauseUI : MonoBehaviour
         {
             GameManager.Instance.TogglePauseGame();
         });
+        _optionsButton.onClick.AddListener(() =>
+        {
+            Hide();
+            _optionsMenu.SetActive(true);
+        });
     }
     private void Start()
     {
@@ -25,9 +32,9 @@ public class GamePauseUI : MonoBehaviour
         Hide();
     }
 
-    private void GameStateChangedHandler(object sender, OnGameStateChangedEventArgs e)
+    private void GameStateChangedHandler(object sender, OnGameStateChangedEventArgs eventArgs)
     {
-        if (e.State == GameManager.GameState.GamePaused)
+        if (eventArgs.State == GameManager.GameState.GamePaused)
             Show();
         else
             Hide();

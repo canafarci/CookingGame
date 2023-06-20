@@ -7,6 +7,7 @@ public class SoundManager : MonoBehaviour
 {
     public static SoundManager Instance { get; private set; }
     [SerializeField] private AudioReferenceScriptableObject _audioReferencesSO;
+    private float _volumeMultiplier = 1f;
     private void Awake()
     {
         if (Instance)
@@ -60,15 +61,20 @@ public class SoundManager : MonoBehaviour
     private void PlaySound(AudioClip[] audioClips, Vector3 position, float volume = 1f)
     {
         AudioClip clip = audioClips[UnityEngine.Random.Range(0, audioClips.Length)];
-        PlaySound(clip, position, volume);
+        PlaySound(clip, position, volume * _volumeMultiplier);
     }
     private void PlaySound(AudioClip audioClip, Vector3 position, float volume = 1f)
     {
-        AudioSource.PlayClipAtPoint(audioClip, position, volume);
+        AudioSource.PlayClipAtPoint(audioClip, position, volume * _volumeMultiplier);
     }
     public void PlayFootstepSound(Vector3 position)
     {
         PlaySound(_audioReferencesSO.Footstep, position);
+    }
+    //Getters-Setters
+    public void SetMasterVolume(float volume)
+    {
+        _volumeMultiplier = volume;
     }
     //cleanup
     private void OnDestroy()

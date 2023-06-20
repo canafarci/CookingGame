@@ -75,7 +75,6 @@ public class CuttingCounter : BaseCounter, IHasProgress
                 KitchenObjectScriptableObject outputKitchenObjectSO = cuttingRecipe.Output;
                 KitchenObject.SpawnKitchenObject(outputKitchenObjectSO, this);
             }
-            print(OnAnyCut.GetInvocationList().Length);
         }
     }
 
