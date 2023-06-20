@@ -51,8 +51,19 @@ public class Player : MonoBehaviour, IKitchenObjectParent
         HandleMovement();
         HandleInteractions();
     }
-    private void InteractHandler(object sender, EventArgs e) => _selectedCounter?.Interact(this);
-    private void InteractAlternateHandler(object sender, EventArgs e) => _selectedCounter?.InteractAlternate(this);
+    private void InteractHandler(object sender, EventArgs e)
+    {
+        //pop stack frame if game is not playing
+        if (!GameManager.Instance.IsGamePlaying()) return;
+        _selectedCounter?.Interact(this);
+    }
+    private void InteractAlternateHandler(object sender, EventArgs e)
+    {
+
+        //pop stack frame if game is not playing
+        if (!GameManager.Instance.IsGamePlaying()) return;
+        _selectedCounter?.InteractAlternate(this);
+    }
     private void HandleInteractions()
     {
         if (Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, INTERACT_DISTANCE, _countersLayerMask))
