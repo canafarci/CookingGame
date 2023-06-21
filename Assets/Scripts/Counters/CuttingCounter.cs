@@ -9,7 +9,7 @@ public class CuttingCounter : BaseCounter, IHasProgress
     private static Dictionary<KitchenObjectScriptableObject, CuttingRecipeScriptableObject> _kitchenObjectRecipeDict;
     private int _cuttingProgress;
     //events
-    public event EventHandler<OnCuttingProgressEventArgs> OnCuttingProgress;
+    public event EventHandler<OnProgressChangedEventArgs> OnProgressChanged;
     public static event EventHandler OnAnyCut;
 
     //events
@@ -80,7 +80,7 @@ public class CuttingCounter : BaseCounter, IHasProgress
 
     private void FireOnCuttingProgressEvent(float normalizedProgress)
     {
-        OnCuttingProgress?.Invoke(this, new OnCuttingProgressEventArgs
+        OnProgressChanged?.Invoke(this, new OnProgressChangedEventArgs
         {
             ProgressNormalized = normalizedProgress
         });
@@ -97,7 +97,7 @@ public class CuttingCounter : BaseCounter, IHasProgress
         }
     }
 }
-public class OnCuttingProgressEventArgs : EventArgs
+public class OnProgressChangedEventArgs : EventArgs
 {
     public float ProgressNormalized;
 }

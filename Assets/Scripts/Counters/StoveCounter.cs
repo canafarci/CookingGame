@@ -9,9 +9,10 @@ public class StoveCounter : BaseCounter, IHasProgress
     [SerializeField] private FryingRecipeScriptableObject[] _fryingRecipeSOs;
     private State _state;
     float _fryingTimer = 0f;
+    private bool _outputCanBeBurned = false;
     private static Dictionary<KitchenObjectScriptableObject, FryingRecipeScriptableObject> _fryingRecipeDict;
     public event EventHandler<OnStoveStateChangedEventArgs> OnStoveStateChanged;
-    public event EventHandler<OnCuttingProgressEventArgs> OnCuttingProgress;
+    public event EventHandler<OnProgressChangedEventArgs> OnProgressChanged;
 
     private void Awake()
     {
@@ -26,6 +27,7 @@ public class StoveCounter : BaseCounter, IHasProgress
         if (HasKitchenObject() && _fryingRecipeDict.ContainsKey(GetKitchenObject().GetKitchenObjectSO()))
         {
             FryingRecipeScriptableObject fryingRecipe = _fryingRecipeDict[GetKitchenObject().GetKitchenObjectSO()];
+            _outputCanBeBurned = fryingRecipe.OutputIsBurnedObject;
             switch (_state)
             {
                 case (State.Idle):
@@ -34,7 +36,7 @@ public class StoveCounter : BaseCounter, IHasProgress
                 case (State.Frying):
                     _fryingTimer += Time.deltaTime;
                     //fire event
-                    FireOnCuttingProgressEvent(_fryingTimer / fryingRecipe.FryingTimerMax);
+                    FireOnProgressChangedEvent(_fryingTimer / fryingRecipe.FryingTimerMax);
 
                     if (_fryingTimer >= fryingRecipe.FryingTimerMax)
                     {
@@ -45,7 +47,7 @@ public class StoveCounter : BaseCounter, IHasProgress
                         {
                             _state = State.Burned;
                             OnStoveStateChanged?.Invoke(this, new OnStoveStateChangedEventArgs { State = _state });
-                            FireOnCuttingProgressEvent(0f);
+                            FireOnProgressChangedEvent(0f);
                         }
                     }
                     break;
@@ -114,9 +116,9 @@ public class StoveCounter : BaseCounter, IHasProgress
             }
         }
     }
-    private void FireOnCuttingProgressEvent(float normalizedProgress)
+    private void FireOnProgressChangedEvent(float normalizedProgress)
     {
-        OnCuttingProgress?.Invoke(this, new OnCuttingProgressEventArgs
+        OnProgressChanged?.Invoke(this, new OnProgressChangedEventArgs
         {
             ProgressNormalized = normalizedProgress
         });
@@ -127,7 +129,13 @@ public class StoveCounter : BaseCounter, IHasProgress
         _state = State.Idle;
         _fryingTimer = 0f;
         OnStoveStateChanged?.Invoke(this, new OnStoveStateChangedEventArgs { State = _state });
-        FireOnCuttingProgressEvent(0f);
+        FireOnProgressChangedEvent(0f);
+        _outputCanBeBurned = false;
+    }
+    //Getters-Setters
+    public bool OutputCanBeBurned()
+    {
+        return _outputCanBeBurned;
     }
 }
 

@@ -45,9 +45,6 @@ public class Player : MonoBehaviour, IKitchenObjectParent
     }
     private void Update()
     {
-        //pop stack frame if game is not playing
-        if (!GameManager.Instance.IsGamePlaying()) return;
-
         HandleMovement();
         HandleInteractions();
     }

@@ -69,15 +69,13 @@ public class DeliveryManager : MonoBehaviour
     }
     private void SpawnRecipe()
     {
-        if (_waitingRecipeSOList.Count < WAITING_RECIPES_MAX)
+        if (GameManager.Instance.IsGamePlaying() && _waitingRecipeSOList.Count < WAITING_RECIPES_MAX)
         {
             RecipeScriptableObject recipeSO = _recipeListSO.RecipeSOList[UnityEngine.Random.Range(0, _recipeListSO.RecipeSOList.Count)];
             _waitingRecipeSOList.Add(recipeSO);
             OnWaitingRecipeSOListChanged?.Invoke(this, new OnWaitingRecipeSOListChangedEventArgs { Added = true, ChangedRecipe = recipeSO });
         }
     }
-    //Getters-Setters
-    //public List<RecipeScriptableObject> GetWaitingRecipeSOList() => _waitingRecipeSOList;
 }
 public class OnWaitingRecipeSOListChangedEventArgs : EventArgs
 {

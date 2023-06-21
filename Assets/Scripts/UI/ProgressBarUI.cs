@@ -14,18 +14,19 @@ public class ProgressBarUI : MonoBehaviour
     }
     private void Start()
     {
-        _progressCounter.OnCuttingProgress += CuttingProgressHandler;
+        _progressCounter.OnProgressChanged += ProgressChangedHandler;
         _progressBarImage.fillAmount = 0f;
+
         Hide();
     }
-    private void CuttingProgressHandler(object sender, OnCuttingProgressEventArgs eventArgs)
+    private void ProgressChangedHandler(object sender, OnProgressChangedEventArgs eventArgs)
     {
-        _progressBarImage.fillAmount = eventArgs.ProgressNormalized;
-
-        if (eventArgs.ProgressNormalized == 0f || eventArgs.ProgressNormalized == 1f)
+        if (eventArgs.ProgressNormalized == 0f || eventArgs.ProgressNormalized >= 1f)
             Hide();
         else
             Show();
+
+        _progressBarImage.fillAmount = eventArgs.ProgressNormalized;
     }
     private void Show() => gameObject.SetActive(true);
     private void Hide() => gameObject.SetActive(false);

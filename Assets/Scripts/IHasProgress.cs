@@ -5,5 +5,5 @@ using UnityEngine;
 
 public interface IHasProgress
 {
-    public event EventHandler<OnCuttingProgressEventArgs> OnCuttingProgress;
+    public event EventHandler<OnProgressChangedEventArgs> OnProgressChanged;
 }

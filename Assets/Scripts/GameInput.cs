@@ -27,6 +27,8 @@ public class GameInput : MonoBehaviour
     public static PlayerInputActions _playerInputActions;
     //constants
     private const string BINDINGS_SAVE_KEY = "InpBin";
+    //events
+    public event EventHandler OnKeysBindingsRebound;
     private void Awake()
     {
         //init singleton
@@ -159,6 +161,7 @@ public class GameInput : MonoBehaviour
             string jsonText = _playerInputActions.SaveBindingOverridesAsJson();
             PlayerPrefs.SetString(BINDINGS_SAVE_KEY, jsonText);
             PlayerPrefs.Save();
+            OnKeysBindingsRebound?.Invoke(this, EventArgs.Empty);
         })
         .Start();
     }

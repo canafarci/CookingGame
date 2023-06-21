@@ -17,10 +17,10 @@ public class CuttingCounterVisual : MonoBehaviour
 
     private void Start()
     {
-        _cuttingCounter.OnCuttingProgress += CuttingProgressHandler;
+        _cuttingCounter.OnProgressChanged += CuttingProgressHandler;
     }
 
-    private void CuttingProgressHandler(object sender, OnCuttingProgressEventArgs eventArgs)
+    private void CuttingProgressHandler(object sender, OnProgressChangedEventArgs eventArgs)
     {
         if (eventArgs.ProgressNormalized != 0f)
         {
