@@ -22,6 +22,7 @@ public class OptionsMenuUI : MonoBehaviour
     [SerializeField] private AudioMixer _mixer;
     [SerializeField] private GameObject _pauseMenu;
     [SerializeField] private GameObject _pressKeyPrompt;
+    //constants
     private const string MIXER_MUSIC_PARAMETER = "MusicVolume";
     private const string MUSIC_VOLUME_SAVE_KEY = "MusVol";
     private const string MASTER_VOLUME_SAVE_KEY = "MixVol";
@@ -62,9 +63,10 @@ public class OptionsMenuUI : MonoBehaviour
         //save preferences
         PlayerPrefs.SetFloat(MUSIC_VOLUME_SAVE_KEY, value);
     }
-    private void Show()
+    public void Show()
     {
         gameObject.SetActive(true);
+        _musicVolumeSlider.Select();
     }
     private void Hide()
     {

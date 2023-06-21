@@ -9,7 +9,7 @@ public class GamePauseUI : MonoBehaviour
     [SerializeField] private Button _mainMenuButton;
     [SerializeField] private Button _resumeButton;
     [SerializeField] private Button _optionsButton;
-    [SerializeField] private GameObject _optionsMenu;
+    [SerializeField] private OptionsMenuUI _optionsMenu;
     private void Awake()
     {
         _mainMenuButton.onClick.AddListener(() =>
@@ -23,7 +23,7 @@ public class GamePauseUI : MonoBehaviour
         _optionsButton.onClick.AddListener(() =>
         {
             Hide();
-            _optionsMenu.SetActive(true);
+            _optionsMenu.Show();
         });
     }
     private void Start()
@@ -43,6 +43,7 @@ public class GamePauseUI : MonoBehaviour
     private void Show()
     {
         gameObject.SetActive(true);
+        _resumeButton.Select();
     }
     private void Hide()
     {
