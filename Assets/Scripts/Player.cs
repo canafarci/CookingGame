@@ -39,7 +39,7 @@ public class Player : NetworkBehaviour, IKitchenObjectParent
     }
     private void Update()
     {
-        //pop stack frame if client is not the owner of the object
+        //pop call stack frame if client is not the owner of the object
         if (!IsOwner) return;
 
         HandleMovement();
@@ -47,14 +47,14 @@ public class Player : NetworkBehaviour, IKitchenObjectParent
     }
     private void InteractHandler(object sender, EventArgs e)
     {
-        //pop stack frame if game is not playing
+        //pop call stack frame if game is not playing
         if (!GameManager.Instance.IsGamePlaying()) return;
         _selectedCounter?.Interact(this);
     }
     private void InteractAlternateHandler(object sender, EventArgs e)
     {
 
-        //pop stack frame if game is not playing
+        //pop call stack frame if game is not playing
         if (!GameManager.Instance.IsGamePlaying()) return;
         _selectedCounter?.InteractAlternate(this);
     }
