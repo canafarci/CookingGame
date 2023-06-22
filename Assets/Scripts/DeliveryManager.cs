@@ -1,15 +1,16 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class DeliveryManager : MonoBehaviour
+public class DeliveryManager : NetworkBehaviour
 {
     [SerializeField] private RecipeListScriptableObject _recipeListSO;
     private List<RecipeScriptableObject> _waitingRecipeSOList = new List<RecipeScriptableObject>();
     private float _spawnRecipeTimer;
     //constants
-    private const float SPAWN_RECIPE_TIMER_MAX = 4f;
+    private const float SPAWN_RECIPE_TIMER_MAX = 8f;
     private const int WAITING_RECIPES_MAX = 5;
     //Singleton reference
     public static DeliveryManager Instance { get; private set; }
@@ -26,20 +27,38 @@ public class DeliveryManager : MonoBehaviour
     }
     private void Update()
     {
+        //if not the server, pop call stack frame
+        if (!IsServer) return;
+
         _spawnRecipeTimer += Time.deltaTime;
 
         if (_spawnRecipeTimer >= SPAWN_RECIPE_TIMER_MAX)
         {
             _spawnRecipeTimer = 0f;
-            SpawnRecipe();
+            //check if game is playing and max amount of wating recipes then call RPC
+            if (GameManager.Instance.IsGamePlaying() && _waitingRecipeSOList.Count < WAITING_RECIPES_MAX)
+            {
+                SpawnNewWaitingRecipeClientRpc(UnityEngine.Random.Range(0, _recipeListSO.RecipeSOList.Count));
+                print("CALLED");
+            }
         }
     }
+
+    [ClientRpc]
+    private void SpawnNewWaitingRecipeClientRpc(int randIndex)
+    {
+        RecipeScriptableObject waitingRecipeSO = _recipeListSO.RecipeSOList[randIndex];
+        _waitingRecipeSOList.Add(waitingRecipeSO);
+        OnWaitingRecipeSOListChanged?.Invoke(this, new OnWaitingRecipeSOListChangedEventArgs { Added = true, ChangedRecipe = waitingRecipeSO });
+    }
+
     public void DeliverRecipe(PlateKitchenObject plateKitchenObject)
     {
         List<KitchenObjectScriptableObject> plateKitchenObjectSOList = plateKitchenObject.GetCurrentKitchenObjectSOList();
 
-        foreach (RecipeScriptableObject recipeSO in _waitingRecipeSOList)
+        for (int i = 0; i < _waitingRecipeSOList.Count; i++)
         {
+            RecipeScriptableObject recipeSO = _waitingRecipeSOList[i];
             //if the lists have the same length, continue checking
             if (recipeSO.KitchenObjectSOList.Count == plateKitchenObjectSOList.Count)
             {
@@ -56,25 +75,37 @@ public class DeliveryManager : MonoBehaviour
                 //found the recipe!
                 if (allItemsMatch)
                 {
-                    _waitingRecipeSOList.Remove(recipeSO);
-                    OnWaitingRecipeSOListChanged?.Invoke(this, new OnWaitingRecipeSOListChangedEventArgs { Added = false, ChangedRecipe = recipeSO });
-                    OnPlateDelivered?.Invoke(this, new OnPlateDeliveredEventArgs { Successful = true });
+                    DeliverCorrectRecipeServerRpc(i);
                     return;
                 }
             }
         }
         //if execution reaches this part, plate doesnt match any of the recipes
-        OnPlateDelivered?.Invoke(this, new OnPlateDeliveredEventArgs { Successful = false });
-        Debug.LogWarning("NOT FOUND THE RECIPE!");
+        DeliverIncorrectRecipeServerRpc();
     }
-    private void SpawnRecipe()
+    [ServerRpc(RequireOwnership = false)]
+    private void DeliverIncorrectRecipeServerRpc()
     {
-        if (GameManager.Instance.IsGamePlaying() && _waitingRecipeSOList.Count < WAITING_RECIPES_MAX)
-        {
-            RecipeScriptableObject recipeSO = _recipeListSO.RecipeSOList[UnityEngine.Random.Range(0, _recipeListSO.RecipeSOList.Count)];
-            _waitingRecipeSOList.Add(recipeSO);
-            OnWaitingRecipeSOListChanged?.Invoke(this, new OnWaitingRecipeSOListChangedEventArgs { Added = true, ChangedRecipe = recipeSO });
-        }
+        DeliverIncorrectRecipeClientRpc();
+    }
+    [ClientRpc]
+    private void DeliverIncorrectRecipeClientRpc()
+    {
+        OnPlateDelivered?.Invoke(this, new OnPlateDeliveredEventArgs { Successful = false });
+    }
+    [ServerRpc(RequireOwnership = false)]
+    private void DeliverCorrectRecipeServerRpc(int index)
+    {
+
+        DeliverCorrectRecipeClientRpc(index);
+    }
+    [ClientRpc]
+    private void DeliverCorrectRecipeClientRpc(int index)
+    {
+        RecipeScriptableObject recipeSO = _waitingRecipeSOList[index];
+        _waitingRecipeSOList.Remove(recipeSO);
+        OnWaitingRecipeSOListChanged?.Invoke(this, new OnWaitingRecipeSOListChangedEventArgs { Added = false, ChangedRecipe = recipeSO });
+        OnPlateDelivered?.Invoke(this, new OnPlateDeliveredEventArgs { Successful = true });
     }
 }
 public class OnWaitingRecipeSOListChangedEventArgs : EventArgs
