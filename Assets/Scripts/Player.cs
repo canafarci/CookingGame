@@ -22,14 +22,14 @@ public class Player : NetworkBehaviour, IKitchenObjectParent
     //Properties
     public bool IsWalking { get { return _isWalking; } }
     //Singleton
-    //public static Player Instance { get; private set; }
+    public static Player LocalInstance { get; private set; }
     //EVENTS
     public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
-    public event Action OnPickedUpObject;
+    public static event EventHandler OnAnyPlayerSpawned;
+    public static event EventHandler OnAnyPlayerPickedUpObject;
     private void Awake()
     {
         _characterController = GetComponent<CharacterController>();
-        //Instance = this;
     }
 
     private void Start()
@@ -37,6 +37,16 @@ public class Player : NetworkBehaviour, IKitchenObjectParent
         GameInput.Instance.OnInteractAction += InteractHandler;
         GameInput.Instance.OnInteractAlternateAction += InteractAlternateHandler;
     }
+    public override void OnNetworkSpawn()
+    {
+        if (IsOwner)
+        {
+            LocalInstance = this;
+        }
+
+        OnAnyPlayerSpawned?.Invoke(this, EventArgs.Empty);
+    }
+
     private void Update()
     {
         //pop call stack frame if client is not the owner of the object
@@ -143,7 +153,7 @@ public class Player : NetworkBehaviour, IKitchenObjectParent
         _kitchenObject = kitchenObject;
 
         if (kitchenObject != null)
-            OnPickedUpObject?.Invoke();
+            OnAnyPlayerPickedUpObject?.Invoke(this, EventArgs.Empty);
     }
     public bool HasKitchenObject() => _kitchenObject != null;
     public Transform GetKitchenObjectFollowTransform() => _kitchenObjectHoldPoint;

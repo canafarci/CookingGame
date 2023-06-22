@@ -15,13 +15,24 @@ public class SelectedCounterVisual : MonoBehaviour
     }
     private void Start()
     {
-        //Player.Instance.OnSelectedCounterChanged += SelectedCounterChangedHandler;
+        if (Player.LocalInstance != null)
+        {
+            Player.LocalInstance.OnSelectedCounterChanged += SelectedCounterChangedHandler;
+        }
+        else
+        {
+            Player.OnAnyPlayerSpawned += AnyPlayerSpawnedHandler;
+        }
     }
-    private void OnDisable()
+    private void AnyPlayerSpawnedHandler(object sender, EventArgs e)
     {
-        //Player.Instance.OnSelectedCounterChanged -= SelectedCounterChangedHandler;
+        if (Player.LocalInstance != null)
+        {
+            //in order to avoid multiple identical listeners
+            Player.LocalInstance.OnSelectedCounterChanged -= SelectedCounterChangedHandler;
+            Player.LocalInstance.OnSelectedCounterChanged += SelectedCounterChangedHandler;
+        }
     }
-
     private void SelectedCounterChangedHandler(object sender, OnSelectedCounterChangedEventArgs eventArgs)
     {
         if (!_selectedVisualActive && eventArgs.SelectedCounter == _counter)
@@ -38,5 +49,13 @@ public class SelectedCounterVisual : MonoBehaviour
 
             _selectedVisualActive = false;
         }
+    }
+    //cleanup
+    private void OnDisable()
+    {
+        if (Player.LocalInstance != null)
+            Player.LocalInstance.OnSelectedCounterChanged -= SelectedCounterChangedHandler;
+
+        Player.OnAnyPlayerSpawned -= AnyPlayerSpawnedHandler;
     }
 }
