@@ -17,9 +17,9 @@ public class GameManager : MonoBehaviour
     }
     private GameState _state;
     private GameState _stateBeforePaused;
-    private float _countdownToStartTimer = 3f;
+    private float _countdownToStartTimer = 1f;
     private float _gamePlayingTimer;
-    private const float GAMEPLAYING_TIMER_MAX = 30f;
+    private const float GAMEPLAYING_TIMER_MAX = 300f;
     //events
     public event EventHandler<OnGameStateChangedEventArgs> OnGameStateChanged;
     private void Awake()
@@ -38,6 +38,11 @@ public class GameManager : MonoBehaviour
     {
         GameInput.Instance.OnPauseAction += PauseActionHandler;
         GameInput.Instance.OnInteractAction += InteractActionHandler;
+
+
+        //!Debug to start game early -- REMOVE ON BUILD
+        _state = GameState.CountdownToStart;
+        OnGameStateChanged?.Invoke(this, new OnGameStateChangedEventArgs { State = _state });
     }
 
     private void InteractActionHandler(object sender, EventArgs e)

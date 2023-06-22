@@ -15,11 +15,11 @@ public class SelectedCounterVisual : MonoBehaviour
     }
     private void Start()
     {
-        Player.Instance.OnSelectedCounterChanged += SelectedCounterChangedHandler;
+        //Player.Instance.OnSelectedCounterChanged += SelectedCounterChangedHandler;
     }
     private void OnDisable()
     {
-        Player.Instance.OnSelectedCounterChanged -= SelectedCounterChangedHandler;
+        //Player.Instance.OnSelectedCounterChanged -= SelectedCounterChangedHandler;
     }
 
     private void SelectedCounterChangedHandler(object sender, OnSelectedCounterChangedEventArgs eventArgs)

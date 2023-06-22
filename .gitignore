@@ -10,6 +10,7 @@
 /obj
 /Temp
 /ProjectSettings
+/_Build
 
 *.txt
 *.csproj
