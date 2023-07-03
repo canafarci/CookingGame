@@ -39,7 +39,6 @@ public class DeliveryManager : NetworkBehaviour
             if (GameManager.Instance.IsGamePlaying() && _waitingRecipeSOList.Count < WAITING_RECIPES_MAX)
             {
                 SpawnNewWaitingRecipeClientRpc(UnityEngine.Random.Range(0, _recipeListSO.RecipeSOList.Count));
-                print("CALLED");
             }
         }
     }

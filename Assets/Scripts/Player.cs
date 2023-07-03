@@ -96,44 +96,7 @@ public class Player : NetworkBehaviour, IKitchenObjectParent
             collisionFlag = _characterController.Move(moveDir * moveDistance);
         }
         _isWalking = collisionFlag == CollisionFlags.None && inputVector != Vector2.zero;
-        // //check can move
-        // bool canMove = CanMove(moveDir, moveDistance);
-
-        // if (!canMove)
-        // {
-        //     //cant move, try only X movement
-        //     Vector3 moveDirX = new Vector3(moveDir.x, 0f, 0f).normalized;
-        //     canMove = (moveDir.x < -.5f || moveDir.x > .5f) && CanMove(moveDirX, moveDistance);
-        //     if (canMove)
-        //     {
-        //         //update vector
-        //         moveDir = moveDirX;
-        //     }
-        //     else
-        //     {
-        //         //if cant move on X, try Z
-        //         Vector3 moveDirZ = new Vector3(0f, 0f, moveDir.z).normalized;
-        //         canMove = canMove = (moveDir.z < -.5f || moveDir.z > .5f) && CanMove(moveDirZ, moveDistance);
-        //         if (canMove)
-        //         {
-        //             //update direction
-        //             moveDir = moveDirZ;
-        //         }
-        //     }
-        // }
-        // if (canMove)
-        // {
-        //     transform.position += moveDir * moveDistance;
-        // }
     }
-    // private bool CanMove(Vector3 moveDir, float moveDistance)
-    // {
-    //     return !Physics.CapsuleCast(transform.position,
-    //                                 transform.position + Vector3.up * PLAYER_HEIGHT,
-    //                                 PLAYER_RADIUS,
-    //                                 moveDir,
-    //                                 moveDistance);
-    // }
     private void SetSelectedCounterNull()
     {
         if (_selectedCounter == null) return;
@@ -157,6 +120,11 @@ public class Player : NetworkBehaviour, IKitchenObjectParent
     }
     public bool HasKitchenObject() => _kitchenObject != null;
     public Transform GetKitchenObjectFollowTransform() => _kitchenObjectHoldPoint;
+
+    public NetworkObject GetNetworkObject()
+    {
+        return NetworkObject;
+    }
 }
 public class OnSelectedCounterChangedEventArgs : EventArgs
 {

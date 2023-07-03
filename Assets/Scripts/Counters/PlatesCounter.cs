@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 public class PlatesCounter : BaseCounter
@@ -21,20 +22,42 @@ public class PlatesCounter : BaseCounter
             //spawn
             if (_platesSpawnedCount < PLATE_SPAWN_MAX_COUNT)
             {
-                _platesSpawnedCount++;
-                OnPlateSpawned?.Invoke(this, new OnPlateSpawnedEventArgs { Change = OnPlateSpawnedEventArgs.CountChangeType.Increase });
+                SpawnPlateServerRpc();
             }
         }
+    }
+    [ServerRpc]
+    private void SpawnPlateServerRpc()
+    {
+        SpawnPlateClientRpc();
+    }
+    [ClientRpc]
+    private void SpawnPlateClientRpc()
+    {
+        _platesSpawnedCount++;
+        OnPlateSpawned?.Invoke(this, new OnPlateSpawnedEventArgs { Change = OnPlateSpawnedEventArgs.CountChangeType.Increase });
     }
     public override void Interact(Player player)
     {
         //player is empty handed and there are plates on the table
         if (!player.HasKitchenObject() && _platesSpawnedCount > 0)
         {
-            _platesSpawnedCount--;
             KitchenObject.SpawnKitchenObject(_plateKitchenObjectSO, player);
-            OnPlateSpawned?.Invoke(this, new OnPlateSpawnedEventArgs { Change = OnPlateSpawnedEventArgs.CountChangeType.Decrease });
+            InteractLogicServerRpc();
         }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void InteractLogicServerRpc()
+    {
+        InteractLogicClientRpc();
+    }
+    [ClientRpc]
+    private void InteractLogicClientRpc()
+    {
+        _platesSpawnedCount--;
+        //fire event
+        OnPlateSpawned?.Invoke(this, new OnPlateSpawnedEventArgs { Change = OnPlateSpawnedEventArgs.CountChangeType.Decrease });
     }
 }
 

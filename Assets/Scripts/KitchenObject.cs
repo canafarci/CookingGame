@@ -7,8 +7,27 @@ public class KitchenObject : NetworkBehaviour
 {
     [SerializeField] KitchenObjectScriptableObject _kitchenObjectSO;
     private IKitchenObjectParent _kitchenObjectParent;
+    private FollowTransform _followTransform;
+    private void Awake()
+    {
+        _followTransform = GetComponent<FollowTransform>();
+    }
     public void SetKitchenObjectParent(IKitchenObjectParent kitchenObjectParent)
     {
+        SetKitchenObjectParentServerRpc(kitchenObjectParent.GetNetworkObject());
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SetKitchenObjectParentServerRpc(NetworkObjectReference kitchenObjectParentNetworkObjectReference)
+    {
+        SetKitchenObjectParentClientRpc(kitchenObjectParentNetworkObjectReference);
+    }
+    [ClientRpc]
+    private void SetKitchenObjectParentClientRpc(NetworkObjectReference kitchenObjectParentNetworkObjectReference)
+    {
+        kitchenObjectParentNetworkObjectReference.TryGet(out NetworkObject kitchenObjectParentNetworkObject);
+        IKitchenObjectParent kitchenObjectParent = kitchenObjectParentNetworkObject.GetComponent<IKitchenObjectParent>();
+
         _kitchenObjectParent?.ClearKitchenObject();
         _kitchenObjectParent = kitchenObjectParent;
 
@@ -17,8 +36,7 @@ public class KitchenObject : NetworkBehaviour
 
         _kitchenObjectParent.SetKitchenObject(this);
 
-        transform.parent = kitchenObjectParent.GetKitchenObjectFollowTransform();
-        transform.localPosition = Vector3.zero;
+        _followTransform.SetTargetTransform(kitchenObjectParent.GetKitchenObjectFollowTransform());
     }
     public void DestroySelf()
     {

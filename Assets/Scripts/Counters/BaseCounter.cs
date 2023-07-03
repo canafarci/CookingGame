@@ -1,9 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class BaseCounter : MonoBehaviour, IKitchenObjectParent
+public class BaseCounter : NetworkBehaviour, IKitchenObjectParent
 {
     [SerializeField] private Transform _counterTopPoint;
     private KitchenObject _kitchenObject = null;
@@ -24,4 +25,9 @@ public class BaseCounter : MonoBehaviour, IKitchenObjectParent
     public Transform GetKitchenObjectFollowTransform() => _counterTopPoint;
     public virtual void Interact(Player player) { Debug.LogError("Interact called from base class"); }
     public virtual void InteractAlternate(Player player) { Debug.LogError("Interact alternate called from base class"); }
+
+    public NetworkObject GetNetworkObject()
+    {
+        return NetworkObject;
+    }
 }
