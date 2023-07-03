@@ -18,7 +18,7 @@ public class ContainerCounter : BaseCounter
         }
         else
         {
-            KitchenObject.SpawnKitchenObject(_kitchenObjectSO, player);
+            CookingGameMultiplayer.Instance.SpawnKitchenObject(_kitchenObjectSO, player);
             InteractLogicServerRpc();
         }
     }

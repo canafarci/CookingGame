@@ -41,7 +41,7 @@ public class StoveCounter : BaseCounter, IHasProgress
                     if (_fryingTimer >= fryingRecipe.FryingTimerMax)
                     {
                         GetKitchenObject().DestroySelf();
-                        KitchenObject.SpawnKitchenObject(fryingRecipe.Output, this);
+                        CookingGameMultiplayer.Instance.SpawnKitchenObject(fryingRecipe.Output, this);
                         _fryingTimer = 0f;
                         if (fryingRecipe.OutputIsBurnedObject)
                         {

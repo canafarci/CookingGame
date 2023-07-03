@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 public class CuttingCounter : BaseCounter, IHasProgress
@@ -11,13 +12,6 @@ public class CuttingCounter : BaseCounter, IHasProgress
     //events
     public event EventHandler<OnProgressChangedEventArgs> OnProgressChanged;
     public static event EventHandler OnAnyCut;
-
-    //events
-    private void Awake()
-    {
-        //if dict is not initialized, set key value pairs
-        InitializeKitchenObjectRecipeDict();
-    }
     public override void Interact(Player player)
     {
         if (!HasKitchenObject()) //table is empty
@@ -26,8 +20,8 @@ public class CuttingCounter : BaseCounter, IHasProgress
             {
                 //player has a KO and table is empty
                 player.GetKitchenObject().SetKitchenObjectParent(this);
-                _cuttingProgress = 0;
-                FireOnCuttingProgressEvent(0f);
+                //sync state
+                OnInteractPlaceObjectOnCounterClientRpc();
             }
             else
             {
@@ -44,7 +38,7 @@ public class CuttingCounter : BaseCounter, IHasProgress
                 {
                     if (plateKitchenObject.TryAddIngredient(GetKitchenObject().GetKitchenObjectSO()))
                     {
-                        GetKitchenObject().DestroySelf();
+                        CookingGameMultiplayer.Instance.DestroyKitchenObject(GetKitchenObject());
                     }
                 }
             }
@@ -55,29 +49,53 @@ public class CuttingCounter : BaseCounter, IHasProgress
             }
         }
     }
-
     public override void InteractAlternate(Player player)
     {
         //only cut if item can be cut
         if (HasKitchenObject() && _kitchenObjectRecipeDict.ContainsKey(GetKitchenObject().GetKitchenObjectSO()))
         {
-            CuttingRecipeScriptableObject cuttingRecipe = _kitchenObjectRecipeDict[GetKitchenObject().GetKitchenObjectSO()];
-            int progressMax = cuttingRecipe.CuttingProgressMax;
-            //increase counter
-            _cuttingProgress++;
-            //fire events
-            FireOnCuttingProgressEvent((float)_cuttingProgress / progressMax);
-            OnAnyCut?.Invoke(this, EventArgs.Empty);
-            if (_cuttingProgress >= progressMax)
-            {
-                //spawn new object
-                GetKitchenObject().DestroySelf();
-                KitchenObjectScriptableObject outputKitchenObjectSO = cuttingRecipe.Output;
-                KitchenObject.SpawnKitchenObject(outputKitchenObjectSO, this);
-            }
+            CutObjectServerRpc();
         }
     }
-
+    private void Awake()
+    {
+        //if dict is not initialized, set key value pairs
+        InitializeKitchenObjectRecipeDict();
+    }
+    [ServerRpc(RequireOwnership = false)]
+    private void OnInteractPlaceObjectOnCounterServerRpc()
+    {
+        OnInteractPlaceObjectOnCounterClientRpc();
+    }
+    [ClientRpc]
+    private void OnInteractPlaceObjectOnCounterClientRpc()
+    {
+        _cuttingProgress = 0;
+        FireOnCuttingProgressEvent(0f);
+    }
+    [ServerRpc(RequireOwnership = false)]
+    private void CutObjectServerRpc()
+    {
+        CutObjectClientRpc();
+    }
+    [ClientRpc]
+    private void CutObjectClientRpc()
+    {
+        CuttingRecipeScriptableObject cuttingRecipe = _kitchenObjectRecipeDict[GetKitchenObject().GetKitchenObjectSO()];
+        int progressMax = cuttingRecipe.CuttingProgressMax;
+        //increase counter
+        _cuttingProgress++;
+        //fire events
+        FireOnCuttingProgressEvent((float)_cuttingProgress / progressMax);
+        OnAnyCut?.Invoke(this, EventArgs.Empty);
+        if (IsOwner && _cuttingProgress >= progressMax)
+        {
+            CookingGameMultiplayer.Instance.DestroyKitchenObject(GetKitchenObject());
+            //spawn new object
+            KitchenObjectScriptableObject outputKitchenObjectSO = cuttingRecipe.Output;
+            CookingGameMultiplayer.Instance.SpawnKitchenObject(outputKitchenObjectSO, this);
+        }
+    }
     private void FireOnCuttingProgressEvent(float normalizedProgress)
     {
         OnProgressChanged?.Invoke(this, new OnProgressChangedEventArgs

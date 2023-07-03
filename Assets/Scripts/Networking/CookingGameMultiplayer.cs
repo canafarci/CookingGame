@@ -31,6 +31,14 @@ public class CookingGameMultiplayer : NetworkBehaviour
         IKitchenObjectParent kitchenObjectParent = kitchenObjectParentNetworkObject.GetComponent<IKitchenObjectParent>();
         kitchenObject.SetKitchenObjectParent(kitchenObjectParent);
     }
+    [ServerRpc(RequireOwnership = false)]
+    private void DestroyKitchenObjectServerRpc(NetworkObjectReference kitchenObjectNetworkObjectReference)
+    {
+        kitchenObjectNetworkObjectReference.TryGet(out NetworkObject kitchenObjectNetworkObject);
+        KitchenObject kitchenObject = kitchenObjectNetworkObject.GetComponent<KitchenObject>();
+
+        kitchenObject.DestroySelf();
+    }
 
     private int GetKitchenObjectSOIndex(KitchenObjectScriptableObject kitchenObjectSO)
     {
@@ -41,12 +49,5 @@ public class CookingGameMultiplayer : NetworkBehaviour
         return _kitchenObjectSOListSO.KitchenObjectSOList[index];
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    private void DestroyKitchenObjectServerRpc(NetworkObjectReference kitchenObjectNetworkObjectReference)
-    {
-        kitchenObjectNetworkObjectReference.TryGet(out NetworkObject kitchenObjectNetworkObject);
-        KitchenObject kitchenObject = kitchenObjectNetworkObject.GetComponent<KitchenObject>();
 
-        kitchenObject.DestroySelf();
-    }
 }

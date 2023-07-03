@@ -28,7 +28,6 @@ public class SoundManager : MonoBehaviour
     {
         TrashCounter trashCounter = sender as TrashCounter;
         PlaySound(_audioReferencesSO.Trash, trashCounter.transform.position, 10f);
-        print("called");
     }
 
     private void AnyObjectPlacedHandler(object sender, EventArgs e)
@@ -68,7 +67,6 @@ public class SoundManager : MonoBehaviour
     private void PlaySound(AudioClip audioClip, Vector3 position, float volume = 1f)
     {
         AudioSource.PlayClipAtPoint(audioClip, position, volume * _volumeMultiplier);
-        print(volume * _volumeMultiplier);
     }
     public void PlayFootstepSound(Vector3 position)
     {

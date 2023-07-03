@@ -43,10 +43,6 @@ public class KitchenObject : NetworkBehaviour
         Destroy(gameObject);
         ClearKitchenObjectParentClientRpc();
     }
-    public static void SpawnKitchenObject(KitchenObjectScriptableObject kitchenObjectSO, IKitchenObjectParent kitchenObjectParent)
-    {
-        CookingGameMultiplayer.Instance.SpawnKitchenObject(kitchenObjectSO, kitchenObjectParent);
-    }
     public bool TryGetPlate(out PlateKitchenObject plateKitchenObject)
     {
         if (this is PlateKitchenObject)

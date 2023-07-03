@@ -44,7 +44,8 @@ public class PlatesCounter : BaseCounter
         //player is empty handed and there are plates on the table
         if (!player.HasKitchenObject() && _platesSpawnedCount > 0)
         {
-            KitchenObject.SpawnKitchenObject(_plateKitchenObjectSO, player);
+            CookingGameMultiplayer.Instance.SpawnKitchenObject(_plateKitchenObjectSO, player);
+
             InteractLogicServerRpc();
         }
     }
