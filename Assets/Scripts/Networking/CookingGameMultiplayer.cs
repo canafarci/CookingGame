@@ -39,12 +39,12 @@ public class CookingGameMultiplayer : NetworkBehaviour
 
         kitchenObject.DestroySelf();
     }
-
-    private int GetKitchenObjectSOIndex(KitchenObjectScriptableObject kitchenObjectSO)
+    //Getters - Setters
+    public int GetKitchenObjectSOFromIndex(KitchenObjectScriptableObject kitchenObjectSO)
     {
         return _kitchenObjectSOListSO.KitchenObjectSOList.IndexOf(kitchenObjectSO);
     }
-    private KitchenObjectScriptableObject GetKitchenObjectFromIndex(int index)
+    public KitchenObjectScriptableObject GetKitchenObjectFromIndex(int index)
     {
         return _kitchenObjectSOListSO.KitchenObjectSOList[index];
     }
