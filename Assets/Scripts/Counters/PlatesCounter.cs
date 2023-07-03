@@ -15,6 +15,8 @@ public class PlatesCounter : BaseCounter
     public event EventHandler<OnPlateSpawnedEventArgs> OnPlateSpawned;
     private void Update()
     {
+        if (!IsServer) return;
+
         _plateSpawnTimer += Time.deltaTime;
         if (_plateSpawnTimer > PLATE_SPAWN_TIME)
         {

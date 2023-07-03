@@ -7,16 +7,17 @@ public class CookingGameMultiplayer : NetworkBehaviour
 {
     [SerializeField] private KitchenObjectListScriptableObject _kitchenObjectSOListSO;
     public static CookingGameMultiplayer Instance { get; private set; }
-    private void Awake()
+    public void DestroyKitchenObject(KitchenObject kitchenObject)
     {
-        Instance = this;
+        DestroyKitchenObjectServerRpc(kitchenObject.NetworkObject);
     }
     public void SpawnKitchenObject(KitchenObjectScriptableObject kitchenObjectSO, IKitchenObjectParent kitchenObjectParent)
     {
         SpawnKitchenObjectServerRpc(_kitchenObjectSOListSO.KitchenObjectSOList.IndexOf(kitchenObjectSO), kitchenObjectParent.GetNetworkObject());
     }
-
-
+    //Initialize Singleton
+    private void Awake() => Instance = this;
+    //Spawn Kitchen Objects on the server
     [ServerRpc(RequireOwnership = false)]
     private void SpawnKitchenObjectServerRpc(int index, NetworkObjectReference kitchenObjectParentNetworkObjectReference)
     {
@@ -38,5 +39,14 @@ public class CookingGameMultiplayer : NetworkBehaviour
     private KitchenObjectScriptableObject GetKitchenObjectFromIndex(int index)
     {
         return _kitchenObjectSOListSO.KitchenObjectSOList[index];
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void DestroyKitchenObjectServerRpc(NetworkObjectReference kitchenObjectNetworkObjectReference)
+    {
+        kitchenObjectNetworkObjectReference.TryGet(out NetworkObject kitchenObjectNetworkObject);
+        KitchenObject kitchenObject = kitchenObjectNetworkObject.GetComponent<KitchenObject>();
+
+        kitchenObject.DestroySelf();
     }
 }

@@ -40,8 +40,8 @@ public class KitchenObject : NetworkBehaviour
     }
     public void DestroySelf()
     {
-        _kitchenObjectParent?.ClearKitchenObject();
         Destroy(gameObject);
+        ClearKitchenObjectParentClientRpc();
     }
     public static void SpawnKitchenObject(KitchenObjectScriptableObject kitchenObjectSO, IKitchenObjectParent kitchenObjectParent)
     {
@@ -59,6 +59,16 @@ public class KitchenObject : NetworkBehaviour
             plateKitchenObject = null;
             return false;
         }
+    }
+    [ClientRpc]
+    private void ClearKitchenObjectParentClientRpc()
+    {
+        GetKitchenObjectParent()?.ClearKitchenObject();
+    }
+
+    public void DestroyKitchenObject(KitchenObject kitchenObject)
+    {
+        CookingGameMultiplayer.Instance.DestroyKitchenObject(kitchenObject);
     }
 
     //Getters and Setters

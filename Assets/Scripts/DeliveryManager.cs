@@ -17,6 +17,37 @@ public class DeliveryManager : NetworkBehaviour
     //Events
     public event EventHandler<OnWaitingRecipeSOListChangedEventArgs> OnWaitingRecipeSOListChanged;
     public event EventHandler<OnPlateDeliveredEventArgs> OnPlateDelivered;
+    public void DeliverRecipe(PlateKitchenObject plateKitchenObject)
+    {
+        List<KitchenObjectScriptableObject> plateKitchenObjectSOList = plateKitchenObject.GetCurrentKitchenObjectSOList();
+
+        for (int i = 0; i < _waitingRecipeSOList.Count; i++)
+        {
+            RecipeScriptableObject recipeSO = _waitingRecipeSOList[i];
+            //if the lists have the same length, continue checking
+            if (recipeSO.KitchenObjectSOList.Count == plateKitchenObjectSOList.Count)
+            {
+                bool allItemsMatch = true;
+                foreach (KitchenObjectScriptableObject koso in recipeSO.KitchenObjectSOList)
+                {
+                    if (!plateKitchenObjectSOList.Contains(koso))
+                    {
+                        //if list doesnt include any of the KO's in the recipe, break out of the loop and set the bool to false
+                        allItemsMatch = false;
+                        break;
+                    }
+                }
+                //found the recipe!
+                if (allItemsMatch)
+                {
+                    DeliverCorrectRecipeServerRpc(i);
+                    return;
+                }
+            }
+        }
+        //if execution reaches this part, plate doesnt match any of the recipes
+        DeliverIncorrectRecipeServerRpc();
+    }
     private void Awake()
     {
         //initialize singleton
@@ -51,37 +82,6 @@ public class DeliveryManager : NetworkBehaviour
         OnWaitingRecipeSOListChanged?.Invoke(this, new OnWaitingRecipeSOListChangedEventArgs { Added = true, ChangedRecipe = waitingRecipeSO });
     }
 
-    public void DeliverRecipe(PlateKitchenObject plateKitchenObject)
-    {
-        List<KitchenObjectScriptableObject> plateKitchenObjectSOList = plateKitchenObject.GetCurrentKitchenObjectSOList();
-
-        for (int i = 0; i < _waitingRecipeSOList.Count; i++)
-        {
-            RecipeScriptableObject recipeSO = _waitingRecipeSOList[i];
-            //if the lists have the same length, continue checking
-            if (recipeSO.KitchenObjectSOList.Count == plateKitchenObjectSOList.Count)
-            {
-                bool allItemsMatch = true;
-                foreach (KitchenObjectScriptableObject koso in recipeSO.KitchenObjectSOList)
-                {
-                    if (!plateKitchenObjectSOList.Contains(koso))
-                    {
-                        //if list doesnt include any of the KO's in the recipe, break out of the loop and set the bool to false
-                        allItemsMatch = false;
-                        break;
-                    }
-                }
-                //found the recipe!
-                if (allItemsMatch)
-                {
-                    DeliverCorrectRecipeServerRpc(i);
-                    return;
-                }
-            }
-        }
-        //if execution reaches this part, plate doesnt match any of the recipes
-        DeliverIncorrectRecipeServerRpc();
-    }
     [ServerRpc(RequireOwnership = false)]
     private void DeliverIncorrectRecipeServerRpc()
     {
