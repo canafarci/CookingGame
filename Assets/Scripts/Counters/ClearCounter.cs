@@ -7,7 +7,7 @@ public class ClearCounter : BaseCounter
 {
     //private
     [SerializeField] KitchenObjectScriptableObject _kitchenObjectSO;
-    public override void Interact(Player player)
+    public override void Interact(IKitchenObjectParent player)
     {
         if (!HasKitchenObject()) //table is empty
         {

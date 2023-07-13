@@ -10,7 +10,7 @@ public class ContainerCounter : BaseCounter
 
     //events
     public event EventHandler OnPlayerGrabbedObject;
-    public override void Interact(Player player)
+    public override void Interact(IKitchenObjectParent player)
     {
         if (player.HasKitchenObject())
         {

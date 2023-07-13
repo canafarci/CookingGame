@@ -19,7 +19,7 @@ public class SoundManager : MonoBehaviour
     {
         DeliveryManager.Instance.OnPlateDelivered += PlateDeliveredHandler;
         CuttingCounter.OnAnyCut += AnyCutHandler;
-        Player.OnAnyPlayerPickedUpObject += PickedUpObjectHandler;
+        PlayerKitchenObjectParent.OnAnyPlayerPickedUpObject += PickedUpObjectHandler;
         BaseCounter.OnAnyObjectPlaced += AnyObjectPlacedHandler;
         TrashCounter.OnAnyObjectTrashed += AnyObjectTrashedHandler;
     }
@@ -38,7 +38,7 @@ public class SoundManager : MonoBehaviour
 
     private void PickedUpObjectHandler(object sender, EventArgs e)
     {
-        Player player = sender as Player;
+        PlayerKitchenObjectParent player = sender as PlayerKitchenObjectParent;
         PlaySound(_audioReferencesSO.ObjectPickup, player.transform.position);
     }
 
@@ -82,7 +82,7 @@ public class SoundManager : MonoBehaviour
     {
         DeliveryManager.Instance.OnPlateDelivered -= PlateDeliveredHandler;
         CuttingCounter.OnAnyCut -= AnyCutHandler;
-        Player.OnAnyPlayerPickedUpObject -= PickedUpObjectHandler;
+        PlayerKitchenObjectParent.OnAnyPlayerPickedUpObject -= PickedUpObjectHandler;
         BaseCounter.OnAnyObjectPlaced -= AnyObjectPlacedHandler;
         TrashCounter.OnAnyObjectTrashed -= AnyObjectTrashedHandler;
     }

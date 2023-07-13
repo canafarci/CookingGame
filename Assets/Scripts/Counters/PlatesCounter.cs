@@ -39,7 +39,7 @@ public class PlatesCounter : BaseCounter
         _platesSpawnedCount++;
         OnPlateSpawned?.Invoke(this, new OnPlateSpawnedEventArgs { Change = OnPlateSpawnedEventArgs.CountChangeType.Increase });
     }
-    public override void Interact(Player player)
+    public override void Interact(IKitchenObjectParent player)
     {
         //player is empty handed and there are plates on the table
         if (!player.HasKitchenObject() && _platesSpawnedCount > 0)

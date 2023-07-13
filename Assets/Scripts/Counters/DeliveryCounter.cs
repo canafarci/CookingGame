@@ -5,7 +5,7 @@ using UnityEngine;
 public class DeliveryCounter : BaseCounter
 {
     public static DeliveryCounter Instance { get; private set; }
-    public override void Interact(Player player)
+    public override void Interact(IKitchenObjectParent player)
     {
         //if player has a KO and that KO is a plate
         if (player.HasKitchenObject() && player.GetKitchenObject().TryGetPlate(out PlateKitchenObject plateKitchenObject))

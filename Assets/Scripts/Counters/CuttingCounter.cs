@@ -12,7 +12,7 @@ public class CuttingCounter : BaseCounter, IHasProgress
     //events
     public event EventHandler<OnProgressChangedEventArgs> OnProgressChanged;
     public static event EventHandler OnAnyCut;
-    public override void Interact(Player player)
+    public override void Interact(IKitchenObjectParent player)
     {
         if (!HasKitchenObject()) //table is empty
         {
@@ -49,7 +49,7 @@ public class CuttingCounter : BaseCounter, IHasProgress
             }
         }
     }
-    public override void InteractAlternate(Player player)
+    public override void InteractAlternate(IKitchenObjectParent player)
     {
         //only cut if item can be cut
         if (HasKitchenObject() && _kitchenObjectRecipeDict.ContainsKey(GetKitchenObject().GetKitchenObjectSO()))

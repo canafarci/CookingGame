@@ -23,8 +23,8 @@ public class BaseCounter : NetworkBehaviour, IKitchenObjectParent
     }
     public bool HasKitchenObject() => _kitchenObject != null;
     public Transform GetKitchenObjectFollowTransform() => _counterTopPoint;
-    public virtual void Interact(Player player) { Debug.LogError("Interact called from base class"); }
-    public virtual void InteractAlternate(Player player) { Debug.LogError("Interact alternate called from base class"); }
+    public virtual void Interact(IKitchenObjectParent player) { Debug.LogError("Interact called from base class"); }
+    public virtual void InteractAlternate(IKitchenObjectParent player) { Debug.LogError("Interact alternate called from base class"); }
 
     public NetworkObject GetNetworkObject()
     {

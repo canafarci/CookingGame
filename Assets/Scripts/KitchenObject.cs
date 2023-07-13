@@ -40,8 +40,8 @@ public class KitchenObject : NetworkBehaviour
     }
     public void DestroySelf()
     {
-        Destroy(gameObject);
         ClearKitchenObjectParentClientRpc();
+        Destroy(gameObject);
     }
     public bool TryGetPlate(out PlateKitchenObject plateKitchenObject)
     {

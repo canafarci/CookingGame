@@ -16,7 +16,7 @@ public class StoveCounter : BaseCounter, IHasProgress
     //events
     public event EventHandler<OnStoveStateChangedEventArgs> OnStoveStateChanged;
     public event EventHandler<OnProgressChangedEventArgs> OnProgressChanged;
-    public override void Interact(Player player)
+    public override void Interact(IKitchenObjectParent player)
     {
         if (!HasKitchenObject()) //table is empty
         {
@@ -69,7 +69,6 @@ public class StoveCounter : BaseCounter, IHasProgress
     {
         if (_fryingRecipeSO != null)
         {
-            //fire event
             FireOnProgressChangedEvent(_fryingTimer.Value / _fryingRecipeSO.FryingTimerMax);
         }
         else

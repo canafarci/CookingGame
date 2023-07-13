@@ -15,22 +15,22 @@ public class SelectedCounterVisual : MonoBehaviour
     }
     private void Start()
     {
-        if (Player.LocalInstance != null)
+        if (PlayerInteraction.LocalInstance != null)
         {
-            Player.LocalInstance.OnSelectedCounterChanged += SelectedCounterChangedHandler;
+            PlayerInteraction.LocalInstance.OnSelectedCounterChanged += SelectedCounterChangedHandler;
         }
         else
         {
-            Player.OnAnyPlayerSpawned += AnyPlayerSpawnedHandler;
+            PlayerInteraction.OnAnyPlayerInteracterSpawned += AnyPlayerInteracterSpawnedHandler;
         }
     }
-    private void AnyPlayerSpawnedHandler(object sender, EventArgs e)
+    private void AnyPlayerInteracterSpawnedHandler(object sender, EventArgs e)
     {
-        if (Player.LocalInstance != null)
+        if (PlayerInteraction.LocalInstance != null)
         {
             //in order to avoid multiple identical listeners
-            Player.LocalInstance.OnSelectedCounterChanged -= SelectedCounterChangedHandler;
-            Player.LocalInstance.OnSelectedCounterChanged += SelectedCounterChangedHandler;
+            PlayerInteraction.LocalInstance.OnSelectedCounterChanged -= SelectedCounterChangedHandler;
+            PlayerInteraction.LocalInstance.OnSelectedCounterChanged += SelectedCounterChangedHandler;
         }
     }
     private void SelectedCounterChangedHandler(object sender, OnSelectedCounterChangedEventArgs eventArgs)
@@ -53,9 +53,9 @@ public class SelectedCounterVisual : MonoBehaviour
     //cleanup
     private void OnDisable()
     {
-        if (Player.LocalInstance != null)
-            Player.LocalInstance.OnSelectedCounterChanged -= SelectedCounterChangedHandler;
+        if (PlayerInteraction.LocalInstance != null)
+            PlayerInteraction.LocalInstance.OnSelectedCounterChanged -= SelectedCounterChangedHandler;
 
-        Player.OnAnyPlayerSpawned -= AnyPlayerSpawnedHandler;
+        PlayerInteraction.OnAnyPlayerInteracterSpawned -= AnyPlayerInteracterSpawnedHandler;
     }
 }
