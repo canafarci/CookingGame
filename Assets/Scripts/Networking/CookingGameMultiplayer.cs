@@ -21,7 +21,7 @@ public class CookingGameMultiplayer : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void SpawnKitchenObjectServerRpc(int index, NetworkObjectReference kitchenObjectParentNetworkObjectReference)
     {
-        Transform kitchenObjectTransform = Instantiate<Transform>(GetKitchenObjectFromIndex(index).Prefab);
+        Transform kitchenObjectTransform = Instantiate<Transform>(GetKitchenObjectSOFromIndex(index).Prefab);
         NetworkObject kitchenObjectNetworkObject = kitchenObjectTransform.GetComponent<NetworkObject>();
         kitchenObjectNetworkObject.Spawn(true);
 
@@ -40,11 +40,11 @@ public class CookingGameMultiplayer : NetworkBehaviour
         kitchenObject.DestroySelf();
     }
     //Getters - Setters
-    public int GetKitchenObjectSOFromIndex(KitchenObjectScriptableObject kitchenObjectSO)
+    public int GetIndexFromKitchenObjectSO(KitchenObjectScriptableObject kitchenObjectSO)
     {
         return _kitchenObjectSOListSO.KitchenObjectSOList.IndexOf(kitchenObjectSO);
     }
-    public KitchenObjectScriptableObject GetKitchenObjectFromIndex(int index)
+    public KitchenObjectScriptableObject GetKitchenObjectSOFromIndex(int index)
     {
         return _kitchenObjectSOListSO.KitchenObjectSOList[index];
     }

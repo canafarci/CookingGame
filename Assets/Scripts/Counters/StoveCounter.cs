@@ -29,7 +29,7 @@ public class StoveCounter : BaseCounter, IHasProgress
                 //if KO can be fried, change state to frying and reset timer
                 if (_fryingRecipeDict.ContainsKey(kitchenObject.GetKitchenObjectSO()))
                 {
-                    int kitchenObjectIndex = CookingGameMultiplayer.Instance.GetKitchenObjectSOFromIndex(kitchenObject.GetKitchenObjectSO());
+                    int kitchenObjectIndex = CookingGameMultiplayer.Instance.GetIndexFromKitchenObjectSO(kitchenObject.GetKitchenObjectSO());
                     OnObjectPlacedOnStoveServerRpc(kitchenObjectIndex);
                 }
             }
@@ -87,7 +87,7 @@ public class StoveCounter : BaseCounter, IHasProgress
     {
         _state = State.Frying;
         _fryingTimer.Value = 0f;
-        KitchenObjectScriptableObject kitchenObjectScriptableObject = CookingGameMultiplayer.Instance.GetKitchenObjectFromIndex(kitchenObjectIndex);
+        KitchenObjectScriptableObject kitchenObjectScriptableObject = CookingGameMultiplayer.Instance.GetKitchenObjectSOFromIndex(kitchenObjectIndex);
         _fryingRecipeSO = _fryingRecipeDict[kitchenObjectScriptableObject];
 
         OnStoveStateChanged?.Invoke(this, new OnStoveStateChangedEventArgs { State = _state });
