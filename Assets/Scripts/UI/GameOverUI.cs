@@ -26,7 +26,7 @@ public class GameOverUI : MonoBehaviour
 
     private void GameStateChangedHandler(object sender, OnGameStateChangedEventArgs e)
     {
-        if (e.State == GameManager.GameState.GameOver)
+        if (e.State == GameState.GameOver)
             Show();
         else
             Hide();

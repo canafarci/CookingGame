@@ -34,7 +34,7 @@ public class GamePauseUI : MonoBehaviour
 
     private void GameStateChangedHandler(object sender, OnGameStateChangedEventArgs eventArgs)
     {
-        if (eventArgs.State == GameManager.GameState.GamePaused)
+        if (eventArgs.State == GameState.GamePaused)
             Show();
         else
             Hide();

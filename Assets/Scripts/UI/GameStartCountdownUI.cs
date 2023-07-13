@@ -14,7 +14,7 @@ public class GameStartCountdownUI : MonoBehaviour
     }
     private void GameStateChangedHandler(object sender, OnGameStateChangedEventArgs e)
     {
-        if (e.State == GameManager.GameState.CountdownToStart)
+        if (e.State == GameState.CountdownToStart)
             Show();
         else
             Hide();

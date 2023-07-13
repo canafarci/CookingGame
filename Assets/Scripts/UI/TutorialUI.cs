@@ -19,11 +19,20 @@ public class TutorialUI : MonoBehaviour
         InitializeKeyTexts();
         GameInput.Instance.OnKeysBindingsRebound += KeyBindingsReboundHandler;
         GameManager.Instance.OnGameStateChanged += GameStateChangedHandler;
+        GameManager.Instance.OnLocalPlayerReadyChanged += LocalPlayerReadyChangedHandler;
+    }
+
+    private void LocalPlayerReadyChangedHandler(object sender, OnLocalPlayerReadyChangedEventArgs e)
+    {
+        if (e.PlayerIsReady)
+        {
+            Hide();
+        }
     }
 
     private void GameStateChangedHandler(object sender, OnGameStateChangedEventArgs e)
     {
-        if (e.State != GameManager.GameState.WaitingToStart)
+        if (e.State != GameState.WaitingToStart)
         {
             Hide();
         }

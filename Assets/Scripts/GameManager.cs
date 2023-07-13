@@ -7,21 +7,16 @@ public class GameManager : MonoBehaviour
 {
     //singleton
     public static GameManager Instance { get; private set; }
-    public enum GameState
-    {
-        WaitingToStart,
-        CountdownToStart,
-        GamePlaying,
-        GameOver,
-        GamePaused
-    }
     private GameState _state;
     private GameState _stateBeforePaused;
-    private float _countdownToStartTimer = 1f;
+    private float _countdownToStartTimer = 3f;
     private float _gamePlayingTimer;
+    private bool _localPlayerIsReady = false;
+    //Constants
     private const float GAMEPLAYING_TIMER_MAX = 300f;
     //events
     public event EventHandler<OnGameStateChangedEventArgs> OnGameStateChanged;
+    public event EventHandler<OnLocalPlayerReadyChangedEventArgs> OnLocalPlayerReadyChanged;
     private void Awake()
     {
         _state = GameState.WaitingToStart;
@@ -38,19 +33,16 @@ public class GameManager : MonoBehaviour
     {
         GameInput.Instance.OnPauseAction += PauseActionHandler;
         GameInput.Instance.OnInteractAction += InteractActionHandler;
-
-
-        //!Debug to start game early -- REMOVE ON BUILD
-        _state = GameState.CountdownToStart;
-        OnGameStateChanged?.Invoke(this, new OnGameStateChangedEventArgs { State = _state });
     }
 
     private void InteractActionHandler(object sender, EventArgs e)
     {
         if (_state == GameState.WaitingToStart)
         {
-            _state = GameState.CountdownToStart;
-            OnGameStateChanged?.Invoke(this, new OnGameStateChangedEventArgs { State = _state });
+            _localPlayerIsReady = true;
+            OnLocalPlayerReadyChanged?.Invoke(this, new OnLocalPlayerReadyChangedEventArgs { PlayerIsReady = _localPlayerIsReady });
+            //TODO remove: _state = GameState.CountdownToStart;
+            //TODO remove: OnGameStateChanged?.Invoke(this, new OnGameStateChangedEventArgs { State = _state });
         }
     }
 
@@ -101,20 +93,24 @@ public class GameManager : MonoBehaviour
         }
     }
     //Getters-Setters
-    public bool IsGamePlaying()
-    {
-        return _state == GameState.GamePlaying;
-    }
-    public float GetCountdownToStartTimer()
-    {
-        return _countdownToStartTimer;
-    }
-    public float GetGameCountdownTimerNormalized()
-    {
-        return _gamePlayingTimer / GAMEPLAYING_TIMER_MAX;
-    }
+    public bool IsGamePlaying() => _state == GameState.GamePlaying;
+    public float GetCountdownToStartTimer() => _countdownToStartTimer;
+    public float GetGameCountdownTimerNormalized() => _gamePlayingTimer / GAMEPLAYING_TIMER_MAX;
+    //TODO remove: public bool IsLocalPlayerReady() => _localPlayerIsReady;
 }
 public class OnGameStateChangedEventArgs : EventArgs
 {
-    public GameManager.GameState State;
+    public GameState State;
+}
+public class OnLocalPlayerReadyChangedEventArgs : EventArgs
+{
+    public bool PlayerIsReady;
+}
+public enum GameState
+{
+    WaitingToStart,
+    CountdownToStart,
+    GamePlaying,
+    GameOver,
+    GamePaused
 }
