@@ -17,20 +17,17 @@ public class TutorialUI : MonoBehaviour
     private void Start()
     {
         InitializeKeyTexts();
-        GameInput.Instance.OnKeysBindingsRebound += KeyBindingsReboundHandler;
-        GameManager.Instance.OnGameStateChanged += GameStateChangedHandler;
-        GameManager.Instance.OnLocalPlayerReadyChanged += LocalPlayerReadyChangedHandler;
+        GameInput.Instance.OnKeysBindingsRebound += GameInput_KeyBindingsReboundHandler;
+        GameManager.Instance.OnGameStateChanged += GameManager_GameStateChangedHandler;
+        GameManager.Instance.OnLocalPlayerReady += GameManager_LocalPlayerReadyHandler;
     }
 
-    private void LocalPlayerReadyChangedHandler(object sender, OnLocalPlayerReadyChangedEventArgs e)
+    private void GameManager_LocalPlayerReadyHandler(object sender, EventArgs e)
     {
-        if (e.PlayerIsReady)
-        {
-            Hide();
-        }
+        Hide();
     }
 
-    private void GameStateChangedHandler(object sender, OnGameStateChangedEventArgs e)
+    private void GameManager_GameStateChangedHandler(object sender, OnGameStateChangedEventArgs e)
     {
         if (e.State != GameState.WaitingToStart)
         {
@@ -38,7 +35,7 @@ public class TutorialUI : MonoBehaviour
         }
     }
 
-    private void KeyBindingsReboundHandler(object sender, EventArgs e)
+    private void GameInput_KeyBindingsReboundHandler(object sender, EventArgs e)
     {
         InitializeKeyTexts();
     }
@@ -59,5 +56,5 @@ public class TutorialUI : MonoBehaviour
     {
         gameObject.SetActive(false);
     }
-    
+
 }

@@ -8,7 +8,7 @@ public class PlayerAnimator : NetworkBehaviour
     private Animator _animator;
     private Vector3 _lastPosition;
     private float _lastSpeed = 0f;
-    private const float _interpolationFactor = 100f;
+    private const float _interpolationFactor = 20f;
     private static readonly int _isWalkingSpeedHash = Animator.StringToHash("Speed");
     private void Awake()
     {
@@ -38,7 +38,9 @@ public class PlayerAnimator : NetworkBehaviour
             speed = 1f;
         }
 
-        speed = Mathf.Lerp(speed, _lastSpeed, Time.deltaTime * _interpolationFactor);
+        float t = Time.deltaTime * _interpolationFactor;
+
+        speed = Mathf.Lerp(_lastSpeed, speed, t);
 
         _lastPosition = transform.position;
         _lastSpeed = speed;

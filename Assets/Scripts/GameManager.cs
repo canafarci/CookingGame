@@ -1,90 +1,67 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+public class GameManager : NetworkBehaviour
 {
-    //singleton
-    public static GameManager Instance { get; private set; }
-    private GameState _state;
+    private readonly NetworkVariable<GameState> _currentGameState = new(GameState.WaitingToStart);
+    private readonly NetworkVariable<float> _countdownToStartTimer = new(3f);
+    private readonly NetworkVariable<float> _timePlayedTimer = new(0f);
     private GameState _stateBeforePaused;
-    private float _countdownToStartTimer = 3f;
-    private float _gamePlayingTimer;
     private bool _localPlayerIsReady = false;
-    //Constants
-    private const float GAMEPLAYING_TIMER_MAX = 300f;
-    //events
+    private readonly Dictionary<ulong, bool> _playerReadyLookup = new();
+
+    private PlayerReadyChecker _playerReadyChecker;
+
+    private const float GAMEPLAYING_TIMER_MAX = 10f;
+
     public event EventHandler<OnGameStateChangedEventArgs> OnGameStateChanged;
-    public event EventHandler<OnLocalPlayerReadyChangedEventArgs> OnLocalPlayerReadyChanged;
+    public event EventHandler OnLocalPlayerReady;
+
+    public static GameManager Instance { get; private set; }
+
     private void Awake()
     {
-        _state = GameState.WaitingToStart;
-
-        if (Instance)
-            Destroy(gameObject);
-        else
-            Instance = this;
-
-        _gamePlayingTimer = GAMEPLAYING_TIMER_MAX;
+        InitializeSingleton();
     }
-
     private void Start()
     {
-        GameInput.Instance.OnPauseAction += PauseActionHandler;
-        GameInput.Instance.OnInteractAction += InteractActionHandler;
+        _playerReadyChecker = GetComponent<PlayerReadyChecker>();
+
+        GameInput.Instance.OnPauseAction += GameInput_PauseActionHandler;
+        GameInput.Instance.OnInteractAction += GameInput_InteractActionHandler;
+        _playerReadyChecker.OnAllPlayersReady += PlayerReadyChecker_AllPlayersReadyHandler;
+
     }
 
-    private void InteractActionHandler(object sender, EventArgs e)
+    public override void OnNetworkSpawn()
     {
-        if (_state == GameState.WaitingToStart)
-        {
-            _localPlayerIsReady = true;
-            OnLocalPlayerReadyChanged?.Invoke(this, new OnLocalPlayerReadyChangedEventArgs { PlayerIsReady = _localPlayerIsReady });
-
-            _state = GameState.CountdownToStart;
-            OnGameStateChanged?.Invoke(this, new OnGameStateChangedEventArgs { State = _state });
-        }
+        _currentGameState.OnValueChanged += GameState_ValueChangedHandler;
     }
 
-    private void PauseActionHandler(object sender, EventArgs e) => TogglePauseGame();
-    public void TogglePauseGame()
-    {
-        if (_state != GameState.GamePaused)
-        {
-            _stateBeforePaused = _state;
-            _state = GameState.GamePaused;
-            Time.timeScale = 0f;
-        }
-        else
-        {
-            _state = _stateBeforePaused;
-            Time.timeScale = 1f;
-        }
-
-        OnGameStateChanged?.Invoke(this, new OnGameStateChangedEventArgs { State = _state });
-    }
     private void Update()
     {
-        switch (_state)
+        if (!IsServer) { return; }
+
+        switch (_currentGameState.Value)
         {
             case GameState.WaitingToStart:
                 break;
             case GameState.CountdownToStart:
-                _countdownToStartTimer -= Time.deltaTime;
-                if (_countdownToStartTimer <= 0f)
+                _countdownToStartTimer.Value -= Time.deltaTime;
+                if (_countdownToStartTimer.Value <= 0f)
                 {
-                    _state = GameState.GamePlaying;
-                    OnGameStateChanged?.Invoke(this, new OnGameStateChangedEventArgs { State = _state });
+                    _currentGameState.Value = GameState.GamePlaying;
                 }
                 break;
 
             case GameState.GamePlaying:
-                _gamePlayingTimer -= Time.deltaTime;
-                if (_gamePlayingTimer <= 0f)
+                _timePlayedTimer.Value += Time.deltaTime;
+                if (_timePlayedTimer.Value >= GAMEPLAYING_TIMER_MAX)
                 {
-                    _state = GameState.GameOver;
-                    OnGameStateChanged?.Invoke(this, new OnGameStateChangedEventArgs { State = _state });
+                    _currentGameState.Value = GameState.GameOver;
                 }
                 break;
             case GameState.GamePaused:
@@ -93,20 +70,65 @@ public class GameManager : MonoBehaviour
                 break;
         }
     }
+
+    private void GameInput_InteractActionHandler(object sender, EventArgs e)
+    {
+        if (_currentGameState.Value == GameState.WaitingToStart)
+        {
+            OnLocalPlayerReady?.Invoke(this, EventArgs.Empty);
+
+            _playerReadyChecker.LocalPlayerIsReady();
+        }
+    }
+
+    private void GameState_ValueChangedHandler(GameState previousValue, GameState newValue)
+    {
+        OnGameStateChanged?.Invoke(this, new OnGameStateChangedEventArgs { State = newValue });
+    }
+
+    private void PlayerReadyChecker_AllPlayersReadyHandler(object sender, EventArgs e)
+    {
+        if (IsServer)
+        {
+            _currentGameState.Value = GameState.CountdownToStart;
+        }
+    }
+
+    private void GameInput_PauseActionHandler(object sender, EventArgs e) => TogglePauseGame();
+
+    public void TogglePauseGame()
+    {
+        if (_currentGameState.Value != GameState.GamePaused)
+        {
+            _stateBeforePaused = _currentGameState.Value;
+            _currentGameState.Value = GameState.GamePaused;
+            Time.timeScale = 0f;
+        }
+        else
+        {
+            _currentGameState.Value = _stateBeforePaused;
+            Time.timeScale = 1f;
+        }
+    }
+
+    private void InitializeSingleton()
+    {
+        if (Instance)
+            Destroy(gameObject);
+        else
+            Instance = this;
+    }
+
     //Getters-Setters
-    public bool IsGamePlaying() => _state == GameState.GamePlaying;
-    public float GetCountdownToStartTimer() => _countdownToStartTimer;
-    public float GetGameCountdownTimerNormalized() => _gamePlayingTimer / GAMEPLAYING_TIMER_MAX;
-    //TODO remove: public bool IsLocalPlayerReady() => _localPlayerIsReady;
+    public bool IsGamePlaying() => _currentGameState.Value == GameState.GamePlaying;
+    public float GetCountdownToStartTimer() => _countdownToStartTimer.Value;
+    public float GetGameCountdownTimerNormalized() => _timePlayedTimer.Value / GAMEPLAYING_TIMER_MAX;
 }
 public class OnGameStateChangedEventArgs : EventArgs
 {
     public GameState State;
 }
-public class OnLocalPlayerReadyChangedEventArgs : EventArgs
-{
-    public bool PlayerIsReady;
-}
+
 public enum GameState
 {
     WaitingToStart,
