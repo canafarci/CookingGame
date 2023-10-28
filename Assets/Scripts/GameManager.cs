@@ -41,8 +41,9 @@ public class GameManager : MonoBehaviour
         {
             _localPlayerIsReady = true;
             OnLocalPlayerReadyChanged?.Invoke(this, new OnLocalPlayerReadyChangedEventArgs { PlayerIsReady = _localPlayerIsReady });
-            //TODO remove: _state = GameState.CountdownToStart;
-            //TODO remove: OnGameStateChanged?.Invoke(this, new OnGameStateChangedEventArgs { State = _state });
+
+            _state = GameState.CountdownToStart;
+            OnGameStateChanged?.Invoke(this, new OnGameStateChangedEventArgs { State = _state });
         }
     }
 

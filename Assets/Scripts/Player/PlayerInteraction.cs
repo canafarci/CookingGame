@@ -6,14 +6,12 @@ using UnityEngine;
 
 public class PlayerInteraction : NetworkBehaviour
 {
-    [SerializeField] LayerMask _countersLayerMask;
+    [SerializeField] private LayerMask _countersLayerMask;
     private BaseCounter _selectedCounter;
     private IKitchenObjectParent _player;
     //Singleton
     public static PlayerInteraction LocalInstance { get; private set; }
     //Constants
-    private const float PLAYER_RADIUS = 0.7f;
-    private const float PLAYER_HEIGHT = 2f;
     private const float INTERACT_DISTANCE = 2f;
     //Events
     public static event EventHandler OnAnyPlayerInteracterSpawned;
