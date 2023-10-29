@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,8 +17,20 @@ public class GamePauseUI : MonoBehaviour
     {
         _gamePauseHandler = FindObjectOfType<GamePauseHandler>();
 
+        BindButtons();
+    }
+
+    private void Start()
+    {
+        _gamePauseHandler.OnPauseToggled += GamePauseHandler_PauseToggledHandler;
+        Hide();
+    }
+
+    private void BindButtons()
+    {
         _mainMenuButton.onClick.AddListener(() =>
         {
+            NetworkManager.Singleton.Shutdown();
             Loader.Load(Loader.Scene.MainMenu);
         });
         _resumeButton.onClick.AddListener(() =>
@@ -29,11 +42,6 @@ public class GamePauseUI : MonoBehaviour
             Hide();
             _optionsMenu.Show();
         });
-    }
-    private void Start()
-    {
-        _gamePauseHandler.OnPauseToggled += GamePauseHandler_PauseToggledHandler;
-        Hide();
     }
 
     private void GamePauseHandler_PauseToggledHandler(object sender, OnPauseToggledEventArgs e)

@@ -2,10 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameOverUI : MonoBehaviour
 {
+    [SerializeField] private Button _mainMenuButton;
     [SerializeField] private TextMeshProUGUI _recipesDeliveredCountText;
     private int _recipesDelivered = 0;
 
@@ -13,6 +16,7 @@ public class GameOverUI : MonoBehaviour
     {
         GameManager.Instance.OnGameStateChanged += GameStateChangedHandler;
         DeliveryManager.Instance.OnPlateDelivered += PlateDeliveredHandler;
+        BindMainMenuButton();
         Hide();
     }
 
@@ -31,6 +35,16 @@ public class GameOverUI : MonoBehaviour
         else
             Hide();
     }
+
+    private void BindMainMenuButton()
+    {
+        _mainMenuButton.onClick.AddListener(() =>
+        {
+            NetworkManager.Singleton.Shutdown();
+            Loader.Load(Loader.Scene.MainMenu);
+        });
+    }
+
     private void Hide()
     {
         gameObject.SetActive(false);

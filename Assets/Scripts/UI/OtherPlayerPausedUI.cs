@@ -20,9 +20,6 @@ public class OtherPlayerPausedUI : MonoBehaviour
 
     private void GamePauseHandler_PauseToggledHandler(object sender, OnPauseToggledEventArgs e)
     {
-        print($"game is paused:   {e.IsGamePaused}");
-        print($"LocalPlayerPausedGame:   {e.LocalPlayerPausedGame}");
-
         if (!e.LocalPlayerPausedGame && e.IsGamePaused)
         {
             Show();

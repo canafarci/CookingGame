@@ -16,6 +16,50 @@ public class StoveCounter : BaseCounter, IHasProgress
     //events
     public event EventHandler<OnStoveStateChangedEventArgs> OnStoveStateChanged;
     public event EventHandler<OnProgressChangedEventArgs> OnProgressChanged;
+    private void Awake()
+    {
+        InitializeFryingRecipeDict();
+    }
+    private void Start()
+    {
+        _state = State.Idle;
+    }
+
+    private void Update()
+    {
+        //execute update only on server
+        if (!IsServer) return;
+
+        if (HasKitchenObject() && _fryingRecipeDict.ContainsKey(GetKitchenObject().GetKitchenObjectSO()))
+        {
+            FryingRecipeScriptableObject fryingRecipe = _fryingRecipeDict[GetKitchenObject().GetKitchenObjectSO()];
+            _outputCanBeBurned = fryingRecipe.OutputIsBurnedObject;
+            switch (_state)
+            {
+                case (State.Idle):
+                    //break out of the state machine if state is idle
+                    break;
+                case (State.Frying):
+                    _fryingTimer.Value += Time.deltaTime;
+
+                    if (_fryingTimer.Value >= fryingRecipe.FryingTimerMax)
+                    {
+                        CookingGameMultiplayer.Instance.DestroyKitchenObject(GetKitchenObject());
+                        CookingGameMultiplayer.Instance.SpawnKitchenObject(fryingRecipe.Output, this);
+                        _fryingTimer.Value = 0f;
+                        if (fryingRecipe.OutputIsBurnedObject)
+                        {
+                            ObjectBurnedServerRpc();
+                        }
+                    }
+                    break;
+                case (State.Burned):
+                    //TODO
+                    break;
+            }
+        }
+    }
+
     public override void Interact(IKitchenObjectParent player)
     {
         if (!HasKitchenObject()) //table is empty
@@ -119,48 +163,7 @@ public class StoveCounter : BaseCounter, IHasProgress
         FireOnProgressChangedEvent(0f);
         _outputCanBeBurned = false;
     }
-    private void Awake()
-    {
-        InitializeFryingRecipeDict();
-    }
-    private void Start()
-    {
-        _state = State.Idle;
-    }
-    private void Update()
-    {
-        //execute update only on server
-        if (!IsServer) return;
 
-        if (HasKitchenObject() && _fryingRecipeDict.ContainsKey(GetKitchenObject().GetKitchenObjectSO()))
-        {
-            FryingRecipeScriptableObject fryingRecipe = _fryingRecipeDict[GetKitchenObject().GetKitchenObjectSO()];
-            _outputCanBeBurned = fryingRecipe.OutputIsBurnedObject;
-            switch (_state)
-            {
-                case (State.Idle):
-                    //break out of the state machine if state is idle
-                    break;
-                case (State.Frying):
-                    _fryingTimer.Value += Time.deltaTime;
-
-                    if (_fryingTimer.Value >= fryingRecipe.FryingTimerMax)
-                    {
-                        CookingGameMultiplayer.Instance.DestroyKitchenObject(GetKitchenObject());
-                        CookingGameMultiplayer.Instance.SpawnKitchenObject(fryingRecipe.Output, this);
-                        _fryingTimer.Value = 0f;
-                        if (fryingRecipe.OutputIsBurnedObject)
-                        {
-                            ObjectBurnedServerRpc();
-                        }
-                    }
-                    break;
-                case (State.Burned):
-                    //TODO
-                    break;
-            }
-        }
-    }
     //Helper methods
     private void InitializeFryingRecipeDict()
     {

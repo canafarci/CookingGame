@@ -11,11 +11,24 @@ public class GamePauseHandler : NetworkBehaviour
 
     public EventHandler<OnPauseToggledEventArgs> OnPauseToggled;
 
-    private void GameInput_PauseActionHandler(object sender, EventArgs e) => TogglePauseGame();
     private void Start()
     {
         GameInput.Instance.OnPauseAction += GameInput_PauseActionHandler;
     }
+
+    public override void OnNetworkSpawn()
+    {
+        if (IsServer)
+        {
+            NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_ClientDisconnectedCallbackHandler;
+        }
+    }
+
+    private void GameInput_PauseActionHandler(object sender, EventArgs e)
+    {
+        TogglePauseGame();
+    }
+
     public void TogglePauseGame()
     {
         if (!_playerPausedGame)
@@ -28,17 +41,33 @@ public class GamePauseHandler : NetworkBehaviour
             _playerPausedGame = false;
             UnpauseGameServerRpc();
         }
-
     }
+
+    private void NetworkManager_ClientDisconnectedCallbackHandler(ulong obj)
+    {
+        StartCoroutine(DelayedCheckUnpause());
+    }
+
+    //delayed because ConnectedClientsIds is updated one frame after player disconnects
+    private IEnumerator DelayedCheckUnpause()
+    {
+        yield return new WaitForEndOfFrame();
+        CheckIfGameCanResume();
+    }
+
+
 
     [ServerRpc(RequireOwnership = false)]
     private void UnpauseGameServerRpc(ServerRpcParams serverRpcParams = default)
     {
         UpdatePauseLookup(serverRpcParams, false);
 
-        var connectedClientIds = NetworkManager.Singleton.ConnectedClientsIds;
+        CheckIfGameCanResume();
+    }
 
-        bool allPlayersUnpaused = CheckIfAllPlayersUnpaused(connectedClientIds);
+    private void CheckIfGameCanResume()
+    {
+        bool allPlayersUnpaused = CheckIfAllPlayersUnpaused();
 
         if (allPlayersUnpaused)
         {
@@ -68,8 +97,9 @@ public class GamePauseHandler : NetworkBehaviour
         });
     }
 
-    private bool CheckIfAllPlayersUnpaused(IReadOnlyList<ulong> connectedClientIds)
+    private bool CheckIfAllPlayersUnpaused()
     {
+        var connectedClientIds = NetworkManager.Singleton.ConnectedClientsIds;
         bool allPlayersUnpaused = true;
 
         foreach (ulong clientID in connectedClientIds)
