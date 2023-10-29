@@ -14,6 +14,7 @@ public class GameManager : NetworkBehaviour
     private readonly Dictionary<ulong, bool> _playerReadyLookup = new();
 
     private PlayerReadyChecker _playerReadyChecker;
+    private GamePauseHandler _gamePauseHandler;
 
     private const float GAMEPLAYING_TIMER_MAX = 10f;
 
@@ -29,10 +30,11 @@ public class GameManager : NetworkBehaviour
     private void Start()
     {
         _playerReadyChecker = GetComponent<PlayerReadyChecker>();
+        _gamePauseHandler = GetComponent<GamePauseHandler>();
 
-        GameInput.Instance.OnPauseAction += GameInput_PauseActionHandler;
         GameInput.Instance.OnInteractAction += GameInput_InteractActionHandler;
         _playerReadyChecker.OnAllPlayersReady += PlayerReadyChecker_AllPlayersReadyHandler;
+        _gamePauseHandler.OnPauseToggled += GamePauseHandler_PauseToggledHandler;
 
     }
 
@@ -71,6 +73,27 @@ public class GameManager : NetworkBehaviour
         }
     }
 
+    private void GamePauseHandler_PauseToggledHandler(object sender, OnPauseToggledEventArgs e)
+    {
+        if (!IsServer) return;
+        if (e.IsGamePaused && _currentGameState.Value == GameState.GamePaused) return;
+
+        TogglePauseState(e);
+    }
+
+    private void TogglePauseState(OnPauseToggledEventArgs e)
+    {
+        if (e.IsGamePaused)
+        {
+            _stateBeforePaused = _currentGameState.Value;
+            _currentGameState.Value = GameState.GamePaused;
+        }
+        else if (!e.IsGamePaused)
+        {
+            _currentGameState.Value = _stateBeforePaused;
+        }
+    }
+
     private void GameInput_InteractActionHandler(object sender, EventArgs e)
     {
         if (_currentGameState.Value == GameState.WaitingToStart)
@@ -94,22 +117,7 @@ public class GameManager : NetworkBehaviour
         }
     }
 
-    private void GameInput_PauseActionHandler(object sender, EventArgs e) => TogglePauseGame();
 
-    public void TogglePauseGame()
-    {
-        if (_currentGameState.Value != GameState.GamePaused)
-        {
-            _stateBeforePaused = _currentGameState.Value;
-            _currentGameState.Value = GameState.GamePaused;
-            Time.timeScale = 0f;
-        }
-        else
-        {
-            _currentGameState.Value = _stateBeforePaused;
-            Time.timeScale = 1f;
-        }
-    }
 
     private void InitializeSingleton()
     {
