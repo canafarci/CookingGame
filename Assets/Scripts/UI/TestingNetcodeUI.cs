@@ -8,19 +8,28 @@ public class TestingNetcodeUI : MonoBehaviour
 {
     [SerializeField] private Button _startHostButton;
     [SerializeField] private Button _startClientButton;
+    [SerializeField] private NetworkInitializer _networkInitializer;
 
     private void Awake()
     {
+        BindButtons();
+    }
+
+    private void Start()
+    {
+
+    }
+
+    private void BindButtons()
+    {
         _startHostButton.onClick.AddListener(() =>
         {
-            Debug.Log("HOST");
-            NetworkManager.Singleton.StartHost();
+            _networkInitializer.StartHost();
             Hide();
         });
         _startClientButton.onClick.AddListener(() =>
         {
-            Debug.Log("CLIENT");
-            NetworkManager.Singleton.StartClient();
+            _networkInitializer.StartClient();
             Hide();
         });
     }
