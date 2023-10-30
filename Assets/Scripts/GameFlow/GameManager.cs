@@ -10,7 +10,6 @@ public class GameManager : NetworkBehaviour
     private readonly NetworkVariable<float> _countdownToStartTimer = new(3f);
     private readonly NetworkVariable<float> _timePlayedTimer = new(0f);
     private GameState _stateBeforePaused;
-    private bool _localPlayerIsReady = false;
     private readonly Dictionary<ulong, bool> _playerReadyLookup = new();
 
     private PlayerReadyChecker _playerReadyChecker;

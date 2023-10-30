@@ -31,7 +31,7 @@ public class GamePauseUI : MonoBehaviour
         _mainMenuButton.onClick.AddListener(() =>
         {
             NetworkManager.Singleton.Shutdown();
-            Loader.Load(Loader.Scene.MainMenu);
+            Loader.LoadScene(Scene.MainMenu);
         });
         _resumeButton.onClick.AddListener(() =>
         {

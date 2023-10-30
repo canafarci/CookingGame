@@ -1,51 +1,80 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public static class Loader
 {
-    public static float LoadingProgress;
-    public enum Scene
-    {
-        MainMenu,
-        GameScene,
-        LoadingScene
-    }
+    public static float LoadingProgress { get; private set; }
     private static string _targetSceneName;
-    private const string LOADING_SCENE_NAME = "Loading Scene";
-    private const string MAIN_MENU_SCENE_NAME = "Main Menu Scene";
-    private const string GAME_SCENE_NAME = "Game Scene";
-
-    public static void Load(Scene scene)
+    private static readonly Dictionary<Scene, string> _sceneNames = new()
     {
-        switch (scene)
+        { Scene.MainMenu, "Main Menu Scene" },
+        { Scene.GameScene, "Game Scene" },
+        { Scene.Loading, "Loading Scene" },
+        { Scene.Lobby, "Lobby Scene" },
+        { Scene.CharacterSelect, "Character Select Scene" }
+    };
+
+    public static void LoadScene(Scene scene)
+    {
+        SetTargetScene(scene);
+
+        string loadingScene = _sceneNames[Scene.Loading];
+        SceneManager.LoadScene(loadingScene);
+    }
+
+    public static void NetworkLoadScene(Scene scene)
+    {
+        string sceneName = GetTargetScene(scene);
+
+        NetworkManager.Singleton.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
+    }
+
+    private static string GetTargetScene(Scene scene)
+    {
+        if (_sceneNames.ContainsKey(scene))
         {
-            case (Scene.MainMenu):
-                _targetSceneName = MAIN_MENU_SCENE_NAME;
-                break;
-            case (Scene.GameScene):
-                _targetSceneName = GAME_SCENE_NAME;
-                break;
-            case (Scene.LoadingScene):
-                _targetSceneName = LOADING_SCENE_NAME;
-                break;
-            default:
-                _targetSceneName = MAIN_MENU_SCENE_NAME;
-                break;
+            string targetSceneName = _sceneNames[scene];
+            return targetSceneName;
         }
-        SceneManager.LoadScene(LOADING_SCENE_NAME);
+        else
+        {
+            throw new Exception("Scene is invalid and does not exist in the lookup!");
+        }
+    }
+
+    private static void SetTargetScene(Scene scene)
+    {
+        if (_sceneNames.ContainsKey(scene))
+        {
+            _targetSceneName = _sceneNames[scene];
+        }
+        else
+        {
+            throw new Exception("Scene is invalid and does not exist in the lookup!");
+        }
     }
 
     public static IEnumerator LoadSceneAsync()
     {
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(_targetSceneName);
 
-        // Wait until the asynchronous scene fully loads
         while (!asyncLoad.isDone)
         {
-            LoadingProgress = asyncLoad.progress / 1f;
+            LoadingProgress = asyncLoad.progress;
             yield return null;
         }
     }
+}
+
+public enum Scene
+{
+    MainMenu,
+    GameScene,
+    Loading,
+    Lobby,
+    CharacterSelect
 }

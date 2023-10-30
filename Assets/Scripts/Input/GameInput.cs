@@ -32,10 +32,7 @@ public class GameInput : MonoBehaviour
     private void Awake()
     {
         //init singleton
-        if (Instance)
-            Destroy(gameObject);
-        else
-            Instance = this;
+        InitializeSingleton();
 
         _playerInputActions = new PlayerInputActions();
         //load key bindings
@@ -165,6 +162,15 @@ public class GameInput : MonoBehaviour
         })
         .Start();
     }
+
+    private void InitializeSingleton()
+    {
+        if (Instance)
+            Destroy(gameObject);
+        else
+            Instance = this;
+    }
+
     //cleanup
     private void OnDestroy()
     {
