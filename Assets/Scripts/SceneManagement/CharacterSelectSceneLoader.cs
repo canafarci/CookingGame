@@ -12,14 +12,8 @@ public class CharacterSelectSceneLoader : MonoBehaviour
         _playerReadyChecker.OnAllPlayersReady += PlayerReadyChecker_AllPlayersReadyHandler;
     }
 
-    public void OnPlayerReadyButtonClicked()
-    {
-        _playerReadyChecker.LocalPlayerIsReady();
-    }
-
     private void PlayerReadyChecker_AllPlayersReadyHandler(object sender, EventArgs e)
     {
-        print("called");
         Loader.NetworkLoadScene(Scene.GameScene);
     }
 }
