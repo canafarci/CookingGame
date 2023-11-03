@@ -4,12 +4,12 @@ using UnityEngine;
 
 public abstract class CanvasUI : MonoBehaviour
 {
-    protected void Show()
+    protected virtual void Show()
     {
         gameObject.SetActive(true);
     }
 
-    protected void Hide()
+    protected virtual void Hide()
     {
         gameObject.SetActive(false);
     }

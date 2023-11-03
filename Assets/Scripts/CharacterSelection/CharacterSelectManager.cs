@@ -15,9 +15,15 @@ public class CharacterSelectManager : NetworkBehaviour
         if (!IsServer) return;
 
         NetworkManager.Singleton.OnClientConnectedCallback += NetworkManager_ClientConnectedCallbackHandler;
+        NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_OnClientDisconnectCallback;
 
         ulong clientId = NetworkManager.Singleton.LocalClientId;
         AddClientIdToList(clientId);
+    }
+
+    private void NetworkManager_OnClientDisconnectCallback(ulong clientID)
+    {
+        _playerDataHolder.RemoveClientData(clientID);
     }
 
     public void PlayerClickedReady()
@@ -57,7 +63,7 @@ public class CharacterSelectManager : NetworkBehaviour
 
     private void AddClientIdToList(ulong clientId)
     {
-        _playerDataHolder.AddPlayerDataToList(clientId);
+        _playerDataHolder.AddPlayerData(clientId);
     }
 }
 

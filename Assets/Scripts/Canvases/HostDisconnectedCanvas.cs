@@ -5,7 +5,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class HostDisconnectedUI : MonoBehaviour
+public class HostDisconnectedCanvas : CanvasUI
 {
     [SerializeField] private Button _mainMenuButton;
 
@@ -34,15 +34,5 @@ public class HostDisconnectedUI : MonoBehaviour
         {
             Show();
         }
-    }
-
-    private void Show()
-    {
-        gameObject.SetActive(true);
-    }
-
-    private void Hide()
-    {
-        gameObject.SetActive(false);
     }
 }

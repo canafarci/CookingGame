@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
 
-public class OptionsMenuUI : MonoBehaviour
+public class OptionsMenuCanvas : MonoBehaviour
 {
     [System.Serializable]
     public struct KeyBindingDisplay
@@ -15,6 +15,7 @@ public class OptionsMenuUI : MonoBehaviour
         public GameInput.Binding Binding;
         public Button BindButton;
     }
+
     [SerializeField] private KeyBindingDisplay[] _keyBindings;
     [SerializeField] private Slider _musicVolumeSlider;
     [SerializeField] private Slider _masterVolumeSlider;
@@ -26,6 +27,7 @@ public class OptionsMenuUI : MonoBehaviour
     private const string MIXER_MUSIC_PARAMETER = "MusicVolume";
     private const string MUSIC_VOLUME_SAVE_KEY = "MusVol";
     private const string MASTER_VOLUME_SAVE_KEY = "MixVol";
+
     private void Start()
     {
         Load();
@@ -41,17 +43,20 @@ public class OptionsMenuUI : MonoBehaviour
 
         Hide();
     }
+
     private void GameStateChangedHandler(object sender, OnGameStateChangedEventArgs eventArgs)
     {
         if (eventArgs.State != GameState.GamePaused)
             Hide();
     }
+
     private void SetMasterVolume(float value)
     {
         SoundManager.Instance.SetMasterVolume(value);
         //save preferences
         PlayerPrefs.SetFloat(MASTER_VOLUME_SAVE_KEY, value);
     }
+
     private void SetMusicVolume(float value)
     {
         float outputMin = -60f;  // Minimum value in the output range
@@ -63,16 +68,7 @@ public class OptionsMenuUI : MonoBehaviour
         //save preferences
         PlayerPrefs.SetFloat(MUSIC_VOLUME_SAVE_KEY, value);
     }
-    public void Show()
-    {
-        gameObject.SetActive(true);
-        _musicVolumeSlider.Select();
-    }
-    private void Hide()
-    {
-        _pressKeyPrompt.SetActive(false);
-        gameObject.SetActive(false);
-    }
+
     private void InitializeKeyTexts()
     {
         foreach (KeyBindingDisplay kbd in _keyBindings)
@@ -80,6 +76,7 @@ public class OptionsMenuUI : MonoBehaviour
             kbd.ButtonText.text = GameInput.Instance.GetBindingText(kbd.Binding);
         }
     }
+
     private void InitializeButtons()
     {
         foreach (KeyBindingDisplay kbd in _keyBindings)
@@ -95,6 +92,7 @@ public class OptionsMenuUI : MonoBehaviour
             });
         }
     }
+
     private void Load()
     {
         if (PlayerPrefs.HasKey(MUSIC_VOLUME_SAVE_KEY))
@@ -112,5 +110,17 @@ public class OptionsMenuUI : MonoBehaviour
 
         InitializeKeyTexts();
         InitializeButtons();
+    }
+
+    public void Show()
+    {
+        gameObject.SetActive(true);
+        _musicVolumeSlider.Select();
+    }
+
+    private void Hide()
+    {
+        _pressKeyPrompt.SetActive(false);
+        gameObject.SetActive(false);
     }
 }

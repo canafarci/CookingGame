@@ -5,7 +5,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CharacterSelectUI : NetworkBehaviour
+public class CharacterSelectCanvas : NetworkBehaviour
 {
     [SerializeField] private Button _mainMenuButton;
     [SerializeField] private Button _readyButton;

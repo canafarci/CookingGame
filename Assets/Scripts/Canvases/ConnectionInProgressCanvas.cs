@@ -6,7 +6,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ConnectionInProgressUI : NetworkBehaviour
+public class ConnectionInProgressCanvas : NetworkBehaviour
 {
     [SerializeField] private NetworkInitializer _networkInitializer;
     [SerializeField] private Button _closeButton;

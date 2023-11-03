@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class OtherPlayerPausedUI : MonoBehaviour
+public class OtherPlayerPausedCanvas : CanvasUI
 {
     private GamePauseHandler _gamePauseHandler;
 
@@ -32,14 +32,5 @@ public class OtherPlayerPausedUI : MonoBehaviour
         {
             Hide();
         }
-    }
-
-    private void Show()
-    {
-        gameObject.SetActive(true);
-    }
-    private void Hide()
-    {
-        gameObject.SetActive(false);
     }
 }

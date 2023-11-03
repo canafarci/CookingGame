@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WaitingForOtherPlayersUI : MonoBehaviour
+public class WaitingForOtherPlayersCanvas : CanvasUI
 {
 
     private void Start()
@@ -24,14 +24,5 @@ public class WaitingForOtherPlayersUI : MonoBehaviour
     private void GameManager_LocalPlayerReadyHandler(object sender, EventArgs e)
     {
         Show();
-    }
-
-    private void Show()
-    {
-        gameObject.SetActive(true);
-    }
-    private void Hide()
-    {
-        gameObject.SetActive(false);
     }
 }

@@ -6,7 +6,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GameOverUI : MonoBehaviour
+public class GameOverCanvas : CanvasUI
 {
     [SerializeField] private Button _mainMenuButton;
     [SerializeField] private TextMeshProUGUI _recipesDeliveredCountText;
@@ -43,14 +43,5 @@ public class GameOverUI : MonoBehaviour
             NetworkManager.Singleton.Shutdown();
             Loader.LoadScene(Scene.MainMenu);
         });
-    }
-
-    private void Hide()
-    {
-        gameObject.SetActive(false);
-    }
-    private void Show()
-    {
-        gameObject.SetActive(true);
     }
 }

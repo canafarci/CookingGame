@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class MainMenuUI : MonoBehaviour
+public class MainMenuCanvas : MonoBehaviour
 {
     [SerializeField] private Button _playButton;
     [SerializeField] private Button _quitButton;

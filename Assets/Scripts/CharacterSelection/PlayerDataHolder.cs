@@ -36,11 +36,17 @@ public class PlayerDataHolder : NetworkBehaviour
                                         });
     }
 
-    public void AddPlayerDataToList(ulong clientId)
+    public void AddPlayerData(ulong clientId)
     {
         int unusedColorIndex = GetUnusedColorIndex();
         PlayerData playerData = new(clientId, unusedColorIndex);
         _playerDataList.Add(playerData);
+    }
+
+    public void RemoveClientData(ulong clientID)
+    {
+        int playerIndex = GetPlayerIndex(clientID);
+        _playerDataList.RemoveAt(playerIndex);
     }
 
     public void ChangePlayerColor(int colorIndex, ulong senderClientID)

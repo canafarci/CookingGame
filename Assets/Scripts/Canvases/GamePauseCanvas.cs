@@ -5,12 +5,12 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GamePauseUI : MonoBehaviour
+public class GamePauseCanvas : CanvasUI
 {
     [SerializeField] private Button _mainMenuButton;
     [SerializeField] private Button _resumeButton;
     [SerializeField] private Button _optionsButton;
-    [SerializeField] private OptionsMenuUI _optionsMenu;
+    [SerializeField] private OptionsMenuCanvas _optionsMenu;
     private GamePauseHandler _gamePauseHandler;
 
     private void Awake()
@@ -56,13 +56,9 @@ public class GamePauseUI : MonoBehaviour
         }
     }
 
-    private void Show()
+    protected override void Show()
     {
-        gameObject.SetActive(true);
+        base.Show();
         _resumeButton.Select();
-    }
-    private void Hide()
-    {
-        gameObject.SetActive(false);
     }
 }

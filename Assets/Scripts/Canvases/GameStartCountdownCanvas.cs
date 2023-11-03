@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class GameStartCountdownUI : MonoBehaviour
+public class GameStartCountdownCanvas : CanvasUI
 {
     [SerializeField] private TextMeshProUGUI _countdownText;
     private void Start()
@@ -23,13 +23,5 @@ public class GameStartCountdownUI : MonoBehaviour
     private void Update()
     {
         _countdownText.text = Mathf.Ceil(GameManager.Instance.GetCountdownToStartTimer()).ToString();
-    }
-    private void Hide()
-    {
-        gameObject.SetActive(false);
-    }
-    private void Show()
-    {
-        gameObject.SetActive(true);
     }
 }
