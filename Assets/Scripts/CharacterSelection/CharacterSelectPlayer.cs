@@ -7,11 +7,11 @@ using UnityEngine;
 public class CharacterSelectPlayer : MonoBehaviour
 {
     [SerializeField] private int _playerIndex;
-    [SerializeField] private CharacterSelectManager _characterSelectManager;
+    [SerializeField] private PlayerDataHolder _playerDataHolder;
 
     private void Start()
     {
-        _characterSelectManager.OnPlayerDataListChanged += CharacterSelectManager_PlayerDataListChangedHandler;
+        _playerDataHolder.OnPlayerDataListChanged += CharacterSelectManager_PlayerDataListChangedHandler;
 
         if (_playerIndex != 0)
         {

@@ -9,7 +9,14 @@ public class MainMenuCleanup : MonoBehaviour
     {
         if (NetworkManager.Singleton != null)
         {
+            NetworkManager.Singleton.Shutdown();
             Destroy(NetworkManager.Singleton.gameObject);
+        }
+
+        var playerDataHolder = FindObjectOfType<PlayerDataHolder>();
+        if (playerDataHolder != null)
+        {
+            Destroy(playerDataHolder.gameObject);
         }
     }
 }

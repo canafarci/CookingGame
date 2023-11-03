@@ -7,29 +7,8 @@ using UnityEngine;
 public class CharacterSelectManager : NetworkBehaviour
 {
     [SerializeField] private PlayerReadyChecker _playerReadyChecker;
-
-    private NetworkList<PlayerData> _playerDataList;
-    public event EventHandler<PlayerDataListChangedArgs> OnPlayerDataListChanged;
+    [SerializeField] private PlayerDataHolder _playerDataHolder;
     public event EventHandler<PlayerReadyClickeddArgs> OnPlayerReadyClicked;
-
-
-    private void Awake()
-    {
-        _playerDataList = new();
-        _playerDataList.OnListChanged += PlayerDataList_OnPlayerDataListChanged;
-    }
-
-    private void PlayerDataList_OnPlayerDataListChanged(NetworkListEvent<PlayerData> changeEvent)
-    {
-        int playerCount = _playerDataList.Count;
-        ulong clientID = _playerDataList[playerCount - 1].ClientID;
-
-        OnPlayerDataListChanged?.Invoke(this,
-                                        new PlayerDataListChangedArgs
-                                        {
-                                            PlayerCount = playerCount,
-                                        });
-    }
 
     public override void OnNetworkSpawn()
     {
@@ -39,8 +18,6 @@ public class CharacterSelectManager : NetworkBehaviour
 
         ulong clientId = NetworkManager.Singleton.LocalClientId;
         AddClientIdToList(clientId);
-
-
     }
 
     public void PlayerClickedReady()
@@ -54,19 +31,17 @@ public class CharacterSelectManager : NetworkBehaviour
     {
         ulong senderClientID = serverRpcParams.Receive.SenderClientId;
 
-
-        int index = 0;
-
-        for (int i = 0; i < _playerDataList.Count; i++)
-        {
-            PlayerData playerData = _playerDataList[i];
-            if (playerData.ClientID == senderClientID)
-            {
-                index = i;
-            }
-        }
+        int index = _playerDataHolder.GetPlayerIndex(senderClientID);
 
         PlayerClickedReadyClientRpc(index);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void PlayerClickedChangeColorServerRpc(int colorIndex, ServerRpcParams serverRpcParams = default)
+    {
+        ulong senderClientID = serverRpcParams.Receive.SenderClientId;
+
+        _playerDataHolder.ChangePlayerColor(colorIndex, senderClientID);
     }
 
     [ClientRpc]
@@ -82,15 +57,11 @@ public class CharacterSelectManager : NetworkBehaviour
 
     private void AddClientIdToList(ulong clientId)
     {
-        PlayerData playerData = new(clientId);
-        _playerDataList.Add(playerData);
+        _playerDataHolder.AddPlayerDataToList(clientId);
     }
 }
 
-public class PlayerDataListChangedArgs : EventArgs
-{
-    public int PlayerCount;
-}
+
 
 public class PlayerReadyClickeddArgs : EventArgs
 {
