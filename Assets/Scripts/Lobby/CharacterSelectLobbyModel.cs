@@ -7,18 +7,12 @@ using UnityEngine;
 
 public class CharacterSelectLobbyModel : MonoBehaviour
 {
-    private Unity.Services.Lobbies.Models.Lobby _currentLobby;
-
-    public void SetCurrentLobby(Unity.Services.Lobbies.Models.Lobby currentLobby)
-    {
-        _currentLobby = currentLobby;
-    }
-
     public async void MainMenuClicked(bool hostClicked)
     {
         try
         {
-            string lobbyId = _currentLobby.Id;
+            Lobby lobby = LobbyHolder.Instance.GetLobby();
+            string lobbyId = lobby.Id;
 
             if (hostClicked)
             {

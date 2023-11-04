@@ -1,28 +1,23 @@
 using System;
-using System.Text.RegularExpressions;
-using Unity.Services.Authentication;
-using Unity.Services.Core;
 using Unity.Services.Lobbies;
+using Unity.Services.Lobbies.Models;
 using UnityEngine;
 
 public class CreateLobbyModel : MonoBehaviour
 {
     [SerializeField] private NetworkInitializer _networkInitializer;
     private const int MAX_PLAYER_COUNT = 4;
-
-    private void Start()
-    {
-        InitializeUnityAuthentication();
-    }
+    public event EventHandler OnLobbyCreated;
 
     public async void CreateLobby(string lobbyName, CreateLobbyOptions options)
     {
         try
         {
-            await LobbyService.Instance.CreateLobbyAsync(lobbyName, MAX_PLAYER_COUNT, options);
+            Lobby lobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, MAX_PLAYER_COUNT, options);
+            LobbyHolder.Instance.SetLobby(lobby);
 
             _networkInitializer.StartHost();
-            Loader.NetworkLoadScene(Scene.CharacterSelect);
+            OnLobbyCreated?.Invoke(this, EventArgs.Empty);
         }
         catch (LobbyServiceException e)
         {
@@ -34,7 +29,9 @@ public class CreateLobbyModel : MonoBehaviour
     {
         try
         {
-            await LobbyService.Instance.QuickJoinLobbyAsync();
+            Lobby lobby = await LobbyService.Instance.QuickJoinLobbyAsync();
+            LobbyHolder.Instance.SetLobby(lobby);
+
             _networkInitializer.StartClient();
         }
         catch (LobbyServiceException e)
@@ -43,35 +40,12 @@ public class CreateLobbyModel : MonoBehaviour
         }
     }
 
-    private async void InitializeUnityAuthentication()
-    {
-        if (UnityServices.State != ServicesInitializationState.Initialized)
-        {
-            InitializationOptions options = new();
-            string uniqueID = CreateUniqueID();
-
-            options.SetProfile(uniqueID);
-
-            await UnityServices.InitializeAsync(options);
-            await AuthenticationService.Instance.SignInAnonymouslyAsync();
-        }
-    }
-
-    private static string CreateUniqueID()
-    {
-        Guid uniqueID = Guid.NewGuid();
-        string idText = uniqueID.ToString();
-        //authentication service requires names to be 30 charaters long and GUIDs are 36 characters,
-        //so remove the last 6 characters
-        string slicedID = idText[..^6];
-        return slicedID;
-    }
-
     public async void JoinLobbyWithCode(string code)
     {
         try
         {
-            await LobbyService.Instance.JoinLobbyByCodeAsync(code);
+            Lobby lobby = await LobbyService.Instance.JoinLobbyByCodeAsync(code);
+            LobbyHolder.Instance.SetLobby(lobby);
         }
         catch (LobbyServiceException e)
         {

@@ -11,33 +11,15 @@ public class CharacterSelectLobbyController : MonoBehaviour
 
     public event EventHandler<OnLobbyInfoReceivedArgs> OnLobbyInfoReceived;
 
-    void Start()
+    private void Start()
     {
-        SetCurrentLobby();
+        Lobby lobby = LobbyHolder.Instance.GetLobby();
+        InvokeInfoLobbyReceivedEvent(lobby);
     }
 
     public void OnMainMenuButtonClicked(bool hostCanceled)
     {
         _model.MainMenuClicked(hostCanceled);
-    }
-
-    private async void SetCurrentLobby()
-    {
-        try
-        {
-            List<string> lobbyIds = await LobbyService.Instance.GetJoinedLobbiesAsync();
-            string lobbyId = lobbyIds[0];
-
-            Lobby currentLobby = await LobbyService.Instance.GetLobbyAsync(lobbyId);
-
-            InvokeInfoLobbyReceivedEvent(currentLobby);
-
-            _model.SetCurrentLobby(currentLobby);
-        }
-        catch (LobbyServiceException e)
-        {
-            throw e;
-        }
     }
 
     private void InvokeInfoLobbyReceivedEvent(Lobby currentLobby)
