@@ -10,14 +10,11 @@ public class CharacterSelectCanvas : NetworkBehaviour
     [SerializeField] private Button _mainMenuButton;
     [SerializeField] private Button _readyButton;
     [SerializeField] private CharacterSelectManager _characterSelectManager;
+    [SerializeField] private CharacterSelectLobbyController _controller;
 
     private void Awake()
     {
-        _mainMenuButton.onClick.AddListener(() =>
-        {
-            NetworkManager.Singleton.Shutdown();
-            Loader.LoadScene(Scene.MainMenu);
-        });
+        _mainMenuButton.onClick.AddListener(() => _controller.OnMainMenuButtonClicked(IsServer));
 
         _readyButton.onClick.AddListener(() =>
         {

@@ -5,23 +5,21 @@ using Unity.Services.Core;
 using Unity.Services.Lobbies;
 using UnityEngine;
 
-public class Lobby : MonoBehaviour
+public class CreateLobbyModel : MonoBehaviour
 {
     [SerializeField] private NetworkInitializer _networkInitializer;
     private const int MAX_PLAYER_COUNT = 4;
-    private Unity.Services.Lobbies.Models.Lobby _joinedLobby;
 
     private void Start()
     {
         InitializeUnityAuthentication();
     }
 
-    public async void CreateLobby(string lobbyName, bool isPrivate)
+    public async void CreateLobby(string lobbyName, CreateLobbyOptions options)
     {
         try
         {
-            CreateLobbyOptions options = new() { IsPrivate = isPrivate };
-            _joinedLobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, MAX_PLAYER_COUNT, options);
+            await LobbyService.Instance.CreateLobbyAsync(lobbyName, MAX_PLAYER_COUNT, options);
 
             _networkInitializer.StartHost();
             Loader.NetworkLoadScene(Scene.CharacterSelect);
@@ -36,8 +34,7 @@ public class Lobby : MonoBehaviour
     {
         try
         {
-            _joinedLobby = await LobbyService.Instance.QuickJoinLobbyAsync();
-
+            await LobbyService.Instance.QuickJoinLobbyAsync();
             _networkInitializer.StartClient();
         }
         catch (LobbyServiceException e)
@@ -68,5 +65,17 @@ public class Lobby : MonoBehaviour
         //so remove the last 6 characters
         string slicedID = idText[..^6];
         return slicedID;
+    }
+
+    public async void JoinLobbyWithCode(string code)
+    {
+        try
+        {
+            await LobbyService.Instance.JoinLobbyByCodeAsync(code);
+        }
+        catch (LobbyServiceException e)
+        {
+            Debug.LogWarning(e);
+        }
     }
 }
