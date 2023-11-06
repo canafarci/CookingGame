@@ -38,6 +38,7 @@ public class HostDisconnectedCanvas : CanvasUI
 
     private void OnDestroy()
     {
-        NetworkManager.Singleton.OnClientDisconnectCallback -= NetworkManager_ClientDisconnectedCallbackHandler;
+        if (NetworkManager.Singleton != null)
+            NetworkManager.Singleton.OnClientDisconnectCallback -= NetworkManager_ClientDisconnectedCallbackHandler;
     }
 }
