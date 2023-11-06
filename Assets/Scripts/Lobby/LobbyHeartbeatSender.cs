@@ -27,7 +27,7 @@ public class LobbyHeartbeatSender : MonoBehaviour
         }
     }
 
-    private static bool CheckIfPlayerIsHost(Lobby lobby)
+    private bool CheckIfPlayerIsHost(Lobby lobby)
     {
         return lobby != null && lobby.HostId == AuthenticationService.Instance.PlayerId;
     }

@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Unity.Netcode;
 using Unity.Services.Authentication;
 using Unity.Services.Lobbies;
@@ -7,7 +8,7 @@ using UnityEngine;
 
 public class CharacterSelectLobbyModel : MonoBehaviour
 {
-    public async void MainMenuClicked(bool hostClicked)
+    public async Task LeaveLobby(bool hostClicked)
     {
         try
         {
@@ -16,21 +17,35 @@ public class CharacterSelectLobbyModel : MonoBehaviour
 
             if (hostClicked)
             {
-                await LobbyService.Instance.DeleteLobbyAsync(lobbyId);
+                await DeleteLobby(lobbyId);
             }
             else
             {
-                string playerId = AuthenticationService.Instance.PlayerId;
-                await LobbyService.Instance.RemovePlayerAsync(lobbyId, playerId);
+                await LeaveLobbyAsClient(lobbyId);
             }
         }
         catch (LobbyServiceException e)
         {
             throw e;
         }
+    }
 
-        NetworkManager.Singleton.Shutdown();
-        Loader.LoadScene(Scene.MainMenu);
+    private static async Task LeaveLobbyAsClient(string lobbyId)
+    {
+        string playerId = AuthenticationService.Instance.PlayerId;
+        await LobbyService.Instance.RemovePlayerAsync(lobbyId, playerId);
+    }
+
+    private async Task DeleteLobby(string lobbyId)
+    {
+        try
+        {
+            await LobbyService.Instance.DeleteLobbyAsync(lobbyId);
+        }
+        catch (LobbyServiceException e)
+        {
+            throw e;
+        }
     }
 }
 

@@ -45,6 +45,13 @@ public class CreateLobbyController : MonoBehaviour
             _lobby.JoinLobbyWithCode(code);
         }
     }
+    public void OnLobbyButtonClicked(string code)
+    {
+        if (!String.IsNullOrEmpty(code))
+        {
+            _lobby.JoinLobbyWithId(code);
+        }
+    }
 
     private async void InitializeUnityAuthentication()
     {

@@ -30,9 +30,7 @@ public class CreateLobbyModel : MonoBehaviour
         try
         {
             Lobby lobby = await LobbyService.Instance.QuickJoinLobbyAsync();
-            LobbyHolder.Instance.SetLobby(lobby);
-
-            _networkInitializer.StartClient();
+            OnJoinedAsClient(lobby);
         }
         catch (LobbyServiceException e)
         {
@@ -40,16 +38,37 @@ public class CreateLobbyModel : MonoBehaviour
         }
     }
 
+
+
     public async void JoinLobbyWithCode(string code)
     {
         try
         {
             Lobby lobby = await LobbyService.Instance.JoinLobbyByCodeAsync(code);
-            LobbyHolder.Instance.SetLobby(lobby);
+            OnJoinedAsClient(lobby);
         }
         catch (LobbyServiceException e)
         {
             Debug.LogWarning(e);
         }
+    }
+
+    public async void JoinLobbyWithId(string code)
+    {
+        try
+        {
+            Lobby lobby = await LobbyService.Instance.JoinLobbyByIdAsync(code);
+            OnJoinedAsClient(lobby);
+        }
+        catch (LobbyServiceException e)
+        {
+            Debug.LogWarning(e);
+        }
+    }
+
+    private void OnJoinedAsClient(Lobby lobby)
+    {
+        LobbyHolder.Instance.SetLobby(lobby);
+        _networkInitializer.StartClient();
     }
 }

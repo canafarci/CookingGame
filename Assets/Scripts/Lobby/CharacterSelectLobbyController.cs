@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
@@ -17,9 +18,12 @@ public class CharacterSelectLobbyController : MonoBehaviour
         InvokeInfoLobbyReceivedEvent(lobby);
     }
 
-    public void OnMainMenuButtonClicked(bool hostCanceled)
+    public async void OnMainMenuButtonClicked(bool hostCanceled)
     {
-        _model.MainMenuClicked(hostCanceled);
+        await _model.LeaveLobby(hostCanceled);
+
+        NetworkManager.Singleton.Shutdown();
+        Loader.LoadScene(Scene.MainMenu);
     }
 
     private void InvokeInfoLobbyReceivedEvent(Lobby currentLobby)
