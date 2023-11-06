@@ -1,17 +1,20 @@
 using System;
+using System.Threading.Tasks;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
 using Unity.Services.Lobbies;
+using Unity.Services.Relay;
+using Unity.Services.Relay.Models;
 using UnityEngine;
 
 public class CreateLobbyController : MonoBehaviour
 {
-    [SerializeField] private CreateLobbyModel _lobby;
+    [SerializeField] private CreateLobbyModel _model;
 
     private void Start()
     {
         InitializeUnityAuthentication();
-        _lobby.OnLobbyCreated += CreateLobbyModel_LobbyCreatedHandler;
+        _model.OnLobbyCreated += CreateLobbyModel_LobbyCreatedHandler;
     }
 
     private void CreateLobbyModel_LobbyCreatedHandler(object sender, EventArgs e)
@@ -24,13 +27,13 @@ public class CreateLobbyController : MonoBehaviour
         if (!String.IsNullOrEmpty(name))
         {
             CreateLobbyOptions options = new() { IsPrivate = isPrivate };
-            _lobby.CreateLobby(name, options);
+            _model.CreateLobby(name, options);
         }
     }
 
     public void OnQuickJoinClicked()
     {
-        _lobby.QuickJoin();
+        _model.QuickJoin();
     }
 
     public void OnMainMenuButtonClicked()
@@ -42,14 +45,14 @@ public class CreateLobbyController : MonoBehaviour
     {
         if (!String.IsNullOrEmpty(code))
         {
-            _lobby.JoinLobbyWithCode(code);
+            _model.JoinLobbyWithCode(code);
         }
     }
     public void OnLobbyButtonClicked(string code)
     {
         if (!String.IsNullOrEmpty(code))
         {
-            _lobby.JoinLobbyWithId(code);
+            _model.JoinLobbyWithId(code);
         }
     }
 
