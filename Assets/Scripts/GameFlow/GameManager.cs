@@ -15,7 +15,7 @@ public class GameManager : NetworkBehaviour
     private PlayerReadyChecker _playerReadyChecker;
     private GamePauseHandler _gamePauseHandler;
 
-    private const float GAMEPLAYING_TIMER_MAX = 10f;
+    private const float GAMEPLAYING_TIMER_MAX = 300f;
 
     public event EventHandler<OnGameStateChangedEventArgs> OnGameStateChanged;
     public event EventHandler OnLocalPlayerReady;

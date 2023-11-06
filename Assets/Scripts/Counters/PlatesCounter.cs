@@ -11,6 +11,7 @@ public class PlatesCounter : BaseCounter
     private int _platesSpawnedCount;
     private const float PLATE_SPAWN_TIME = 4f;
     private const int PLATE_SPAWN_MAX_COUNT = 4;
+    private IKitchenObjectParent _player;
     //events
     public event EventHandler<OnPlateSpawnedEventArgs> OnPlateSpawned;
     private void Update()
@@ -41,20 +42,21 @@ public class PlatesCounter : BaseCounter
     }
     public override void Interact(IKitchenObjectParent player)
     {
-        //player is empty handed and there are plates on the table
-        if (!player.HasKitchenObject() && _platesSpawnedCount > 0)
-        {
-            CookingGameMultiplayer.Instance.SpawnKitchenObject(_plateKitchenObjectSO, player);
-
-            InteractLogicServerRpc();
-        }
+        _player = player;
+        InteractLogicServerRpc();
     }
 
     [ServerRpc(RequireOwnership = false)]
     private void InteractLogicServerRpc()
     {
-        InteractLogicClientRpc();
+        //player is empty handed and there are plates on the table
+        if (!_player.HasKitchenObject() && _platesSpawnedCount > 0)
+        {
+            CookingGameMultiplayer.Instance.SpawnKitchenObject(_plateKitchenObjectSO, _player);
+            InteractLogicClientRpc();
+        }
     }
+
     [ClientRpc]
     private void InteractLogicClientRpc()
     {

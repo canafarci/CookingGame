@@ -11,43 +11,59 @@ public class CookingGameMultiplayer : NetworkBehaviour
     {
         DestroyKitchenObjectServerRpc(kitchenObject.NetworkObject);
     }
+
     public void SpawnKitchenObject(KitchenObjectScriptableObject kitchenObjectSO, IKitchenObjectParent kitchenObjectParent)
     {
         SpawnKitchenObjectServerRpc(_kitchenObjectSOListSO.KitchenObjectSOList.IndexOf(kitchenObjectSO), kitchenObjectParent.GetNetworkObject());
     }
+
     //Initialize Singleton
     private void Awake() => Instance = this;
+
     //Spawn Kitchen Objects on the server
     [ServerRpc(RequireOwnership = false)]
     private void SpawnKitchenObjectServerRpc(int index, NetworkObjectReference kitchenObjectParentNetworkObjectReference)
     {
-        Transform kitchenObjectTransform = Instantiate<Transform>(GetKitchenObjectSOFromIndex(index).Prefab);
-        NetworkObject kitchenObjectNetworkObject = kitchenObjectTransform.GetComponent<NetworkObject>();
-        kitchenObjectNetworkObject.Spawn(true);
+        if (!kitchenObjectParentNetworkObjectReference.TryGet(out NetworkObject kitchenObjectParentNetworkObject)) return;
 
-        KitchenObject kitchenObject = kitchenObjectTransform.GetComponent<KitchenObject>();
-
-        kitchenObjectParentNetworkObjectReference.TryGet(out NetworkObject kitchenObjectParentNetworkObject);
         IKitchenObjectParent kitchenObjectParent = kitchenObjectParentNetworkObject.GetComponent<IKitchenObjectParent>();
-        kitchenObject.SetKitchenObjectParent(kitchenObjectParent);
+
+        if (!kitchenObjectParent.HasKitchenObject())
+        {
+            Transform kitchenObjectTransform = SpawnKitchenObject(index);
+            KitchenObject kitchenObject = kitchenObjectTransform.GetComponent<KitchenObject>();
+            kitchenObject.SetKitchenObjectParent(kitchenObjectParent);
+        }
     }
+
     [ServerRpc(RequireOwnership = false)]
     private void DestroyKitchenObjectServerRpc(NetworkObjectReference kitchenObjectNetworkObjectReference)
     {
-        kitchenObjectNetworkObjectReference.TryGet(out NetworkObject kitchenObjectNetworkObject);
-        KitchenObject kitchenObject = kitchenObjectNetworkObject.GetComponent<KitchenObject>();
+        if (kitchenObjectNetworkObjectReference.TryGet(out NetworkObject kitchenObjectNetworkObject))
+        {
+            KitchenObject kitchenObject = kitchenObjectNetworkObject.GetComponent<KitchenObject>();
 
-        kitchenObject.DestroySelf();
+            kitchenObject.DestroySelf();
+        }
     }
+
+    private Transform SpawnKitchenObject(int index)
+    {
+        Transform kitchenObjectTransform = Instantiate<Transform>(GetKitchenObjectSOFromIndex(index).Prefab);
+        NetworkObject kitchenObjectNetworkObject = kitchenObjectTransform.GetComponent<NetworkObject>();
+        kitchenObjectNetworkObject.Spawn(true);
+        return kitchenObjectTransform;
+    }
+
+
     //Getters - Setters
     public int GetIndexFromKitchenObjectSO(KitchenObjectScriptableObject kitchenObjectSO)
     {
         return _kitchenObjectSOListSO.KitchenObjectSOList.IndexOf(kitchenObjectSO);
     }
+
     public KitchenObjectScriptableObject GetKitchenObjectSOFromIndex(int index)
     {
         return _kitchenObjectSOListSO.KitchenObjectSOList[index];
     }
-
-
 }

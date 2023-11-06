@@ -51,11 +51,7 @@ public class CuttingCounter : BaseCounter, IHasProgress
     }
     public override void InteractAlternate(IKitchenObjectParent player)
     {
-        //only cut if item can be cut
-        if (HasKitchenObject() && _kitchenObjectRecipeDict.ContainsKey(GetKitchenObject().GetKitchenObjectSO()))
-        {
-            CutObjectServerRpc();
-        }
+        TryCutObjectServerRpc();
     }
     private void Awake()
     {
@@ -74,9 +70,13 @@ public class CuttingCounter : BaseCounter, IHasProgress
         FireOnCuttingProgressEvent(0f);
     }
     [ServerRpc(RequireOwnership = false)]
-    private void CutObjectServerRpc()
+    private void TryCutObjectServerRpc()
     {
-        CutObjectClientRpc();
+        //only cut if item can be cut
+        if (HasKitchenObject() && _kitchenObjectRecipeDict.ContainsKey(GetKitchenObject().GetKitchenObjectSO()))
+        {
+            CutObjectClientRpc();
+        }
     }
     [ClientRpc]
     private void CutObjectClientRpc()

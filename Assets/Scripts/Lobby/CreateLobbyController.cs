@@ -48,6 +48,7 @@ public class CreateLobbyController : MonoBehaviour
             _model.JoinLobbyWithCode(code);
         }
     }
+
     public void OnLobbyButtonClicked(string code)
     {
         if (!String.IsNullOrEmpty(code))
